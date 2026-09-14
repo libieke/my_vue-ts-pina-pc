@@ -39,7 +39,7 @@ const routerList = router.filter((v) => v.meta && v.meta.isShow);
   } */
 
   .el-menu {
-    height: calc(100% - 50px);
+    height: 100%;
   }
 }
 </style>

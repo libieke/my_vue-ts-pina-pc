@@ -5,28 +5,31 @@
 <script setup lang="ts">
 import * as echarts from "echarts";
 
-const main = ref(null);
-onMounted(() => {
-  initEcgarts();
-});
+const main = ref<HTMLElement | null>(null);
 
-const initEcgarts = () => {
-  const massEchart = echarts.init(main.value);
-  let option = {
+const initEcharts = () => {
+  if (!main.value) return;
+  const myChart = echarts.init(main.value);
+  myChart.setOption({
+    title: {
+      text: "柱状图示例",
+    },
+    tooltip: {},
     xAxis: {
-      type: "category",
-      data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
     },
-    yAxis: {
-      type: "value",
-    },
+    yAxis: {},
     series: [
       {
-        data: [150, 230, 224, 218, 135, 147, 260],
-        type: "line",
+        name: "销量",
+        type: "bar",
+        data: [5, 20, 36, 10, 10, 20, 5],
       },
     ],
-  };
-  massEchart.setOption(option);
+  });
 };
+
+onMounted(() => {
+  initEcharts();
+});
 </script>
