@@ -64,7 +64,7 @@ const router = createRouter({
 })
 
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const store = useUserStore
   const userName = store.name
   // const access_token = to.query.token

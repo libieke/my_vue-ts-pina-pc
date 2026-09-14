@@ -7,7 +7,7 @@
     </div> -->
     <el-menu
       active-text-color="#fff"
-      background-color="#1f69a7"
+      background-color="#134C66"
       :default-active="$route.path"
       text-color="#fff"
       :unique-opened="true"
@@ -26,20 +26,30 @@ const routerList = router.filter((v) => v.meta && v.meta.isShow);
 <style lang="scss" scoped>
 .sidebar {
   height: 100%;
-  // background-color: #1f69a7;
   border-right: none;
-  /* .sidebar-logo {
-    height: 48px;
-    background-color: #002140;
-    color: #fff;
-    font-weight: 700;
-    line-height: 48px;
-    text-align: center;
-    font-size: 20px;
-  } */
 
   .el-menu {
     height: 100%;
+    // 侧边栏渐变背景（从上到下：深蓝 → 蓝绿）
+    background: linear-gradient(180deg, #0f172a 0%, #134c66 100%) !important;
+    border-right: none;
+
+    // 覆盖菜单项的内联背景色，使其透明以显示渐变
+    :deep(.el-menu-item),
+    :deep(.el-sub-menu__title) {
+      background-color: transparent !important;
+    }
+
+    // hover 时的背景色
+    :deep(.el-menu-item:hover),
+    :deep(.el-sub-menu__title:hover) {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    // 激活项的背景色
+    :deep(.el-menu-item.is-active) {
+      background-color: rgba(64, 158, 255, 0.25) !important;
+    }
   }
 }
 </style>

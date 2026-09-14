@@ -2,7 +2,8 @@
   <div class="header">
     <div class="top-box">
       <div class="left">
-        <img src="@/assets/pictrue/labi.png" width="180" height="60" />
+        <!-- <img src="@/assets/pictrue/loginbg.png" width="100%" height="60" /> -->
+        <span>我的管理平台</span>
       </div>
       <div class="right">
         <div class="avatar padding-r-10">
@@ -60,7 +61,9 @@ const loguot = () => {
     height: 60px;
     overflow: hidden;
     text-align: center;
-    background-color: #1f69a7;
+    color: #fff;
+    // background-color: #1F3A8A;
+    background: linear-gradient(180deg, #0f172a 0%, #134c66 100%);
   }
   .right {
     display: flex;

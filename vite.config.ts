@@ -1,57 +1,75 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
 
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
-// 自动导入vue中hook reactive ref等
-import AutoImport from "unplugin-auto-import/vite"
-//自动导入ui-组件 比如说ant-design-vue  element-plus等
-import Components from 'unplugin-vue-components/vite';
+import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 
-//element
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import { AntDesignVueResolver } from "unplugin-vue-components/resolvers"
-// https://vitejs.dev/config/
+// 自动导入 vue 中 hook reactive ref 等
+import AutoImport from "unplugin-auto-import/vite";
+
+// 自动导入 UI 组件
+import Components from "unplugin-vue-components/vite";
+
+// element
+import {
+  ElementPlusResolver,
+  AntDesignVueResolver,
+} from "unplugin-vue-components/resolvers";
+
 export default defineConfig({
+  // ⭐ GitHub Pages 项目路径
+  base: "/my_vue-ts-pina-pc/",
+
   plugins: [
     vue(),
+
     createSvgIconsPlugin({
-      iconDirs: [resolve(process.cwd(), 'src/icons')],
-      symbolId: 'icon-[dir]-[name]'
+      iconDirs: [resolve(process.cwd(), "src/icons")],
+      symbolId: "icon-[dir]-[name]",
     }),
+
     AutoImport({
-      //安装两行后你会发现在组件中不用再导入ref，reactive等
-      imports: ['vue', 'vue-router'],
+      imports: ["vue", "vue-router"],
       dts: "src/auto-import.d.ts",
-      //element
       resolvers: [ElementPlusResolver(), AntDesignVueResolver()],
     }),
+
     Components({
-      //element
-      resolvers: [ElementPlusResolver({ importStyle: 'sass' }), AntDesignVueResolver()],
-      //默认存放位置
-      //dts: "src/components.d.ts",
+      resolvers: [
+        ElementPlusResolver({
+          importStyle: "sass",
+        }),
+        AntDesignVueResolver(),
+      ],
     }),
   ],
+
   build: {
-    outDir: 'me-test',
-    assetsDir: 'static',
-    target: ['esxss']
+    // ⭐ 你的项目不是默认 dist
+    outDir: "me-test",
+
+    assetsDir: "static",
+
+    target: "esnext",
   },
+
   server: {
     port: 5173,
+
     proxy: {
-      '/api': {
+      "/api": {
         target: "http://192.168.1.104:8999/",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      }
-    }
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
+
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src')
+      "@": resolve(__dirname, "./src"),
     },
-    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue", 'png']
-  }
-})
+
+    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue", "png"],
+  },
+});
