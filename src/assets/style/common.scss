@@ -30,19 +30,19 @@
 }
 
 .orange {
-  color: #F7711B !important;
+  color: #f7711b !important;
 }
 
 .blue {
-  color: #155EE8 !important;
+  color: #155ee8 !important;
 }
 
 .red {
-  color: #FF0303;
+  color: #ff0303;
 }
 
 .violet {
-  color: #7052F8 !important;
+  color: #7052f8 !important;
 }
 
 .gray6 {
@@ -54,11 +54,11 @@
 }
 
 .yellow {
-  color: #FCDE3F !important;
+  color: #fcde3f !important;
 }
 
 .green {
-  color: #07A533 !important;
+  color: #07a533 !important;
 }
 
 .bold {
@@ -115,6 +115,10 @@
   cursor: pointer;
 }
 
+.mr10 {
+  margin: 0 10px !important;
+}
+
 .notShow {
   display: none !important;
 }
@@ -142,10 +146,8 @@
 }
 
 @for $i from 0 through 80 {
-
   // 只要双数和能被5除尽的数
   @if $i % 2==0 or $i % 5==0 {
-
     // 得出：margin-30或者u-m-30
     .margin-#{$i},
     .m-#{$i} {
@@ -158,12 +160,7 @@
       padding: $i + px !important;
     }
 
-    @each $short,
-    $long in l left,
-    t top,
-    r right,
-    b bottom {
-
+    @each $short, $long in l left, t top, r right, b bottom {
       // 缩写版，结果如： m-l-30
       // 定义外边距
       .m-#{$short}-#{$i} {

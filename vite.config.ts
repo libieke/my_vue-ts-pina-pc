@@ -1,75 +1,74 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 
-// 自动导入 vue 中 hook reactive ref 等
 import AutoImport from "unplugin-auto-import/vite";
 
-// 自动导入 UI 组件
 import Components from "unplugin-vue-components/vite";
 
-// element
 import {
   ElementPlusResolver,
   AntDesignVueResolver,
 } from "unplugin-vue-components/resolvers";
 
-export default defineConfig({
-  // ⭐ GitHub Pages 项目路径
-  base: "/my_vue-ts-pina-pc/",
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd());
 
-  plugins: [
-    vue(),
+  return {
+    base: env.VITE_BASE_URL || "/",
 
-    createSvgIconsPlugin({
-      iconDirs: [resolve(process.cwd(), "src/icons")],
-      symbolId: "icon-[dir]-[name]",
-    }),
+    plugins: [
+      vue(),
 
-    AutoImport({
-      imports: ["vue", "vue-router"],
-      dts: "src/auto-import.d.ts",
-      resolvers: [ElementPlusResolver(), AntDesignVueResolver()],
-    }),
+      createSvgIconsPlugin({
+        iconDirs: [resolve(process.cwd(), "src/icons")],
+        symbolId: "icon-[dir]-[name]",
+      }),
 
-    Components({
-      resolvers: [
-        ElementPlusResolver({
-          importStyle: "sass",
-        }),
-        AntDesignVueResolver(),
-      ],
-    }),
-  ],
+      AutoImport({
+        imports: ["vue", "vue-router"],
+        dts: "src/auto-import.d.ts",
+        resolvers: [ElementPlusResolver(), AntDesignVueResolver()],
+      }),
 
-  build: {
-    // ⭐ 你的项目不是默认 dist
-    outDir: "me-test",
+      Components({
+        resolvers: [
+          ElementPlusResolver({
+            importStyle: "sass",
+          }),
+          AntDesignVueResolver(),
+        ],
+      }),
+    ],
 
-    assetsDir: "static",
+    build: {
+      outDir: "me-test",
 
-    target: "esnext",
-  },
+      assetsDir: "static",
 
-  server: {
-    port: 5173,
+      target: "esnext",
+    },
 
-    proxy: {
-      "/api": {
-        target: "http://192.168.1.104:8999/",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+    server: {
+      port: 5173,
+
+      proxy: {
+        "/api": {
+          target: "http://192.168.1.104:8999/",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ""),
+        },
       },
     },
-  },
 
-  resolve: {
-    alias: {
-      "@": resolve(__dirname, "./src"),
+    resolve: {
+      alias: {
+        "@": resolve(__dirname, "./src"),
+      },
+
+      extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue", "png"],
     },
-
-    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue", "png"],
-  },
+  };
 });

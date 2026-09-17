@@ -79,11 +79,12 @@ const handleCommand = (command: string) => {
 .tags-view {
   display: flex;
   align-items: center;
-  height: 40px;
-  padding: 0 12px;
+  min-height: 52px;
+  padding: 10px 12px;
   background: #f5f7fa;
   border-bottom: 1px solid #ebeef5;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.04);
+  box-sizing: border-box;
 
   .tags-scroll {
     flex: 1;
