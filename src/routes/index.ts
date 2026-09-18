@@ -61,27 +61,29 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const userStore = useUserStore();
-  const token = userStore.token;
-  const userName = userStore.username;
+  const token = userStore.token || localStorage.getItem('TOKEN');
+  const userName = userStore.username || JSON.parse(localStorage.getItem('USER_INFO') || '{"username":""}').username;
   const areaCode = to.query.areaCode;
 
-  // 检查是否真的已登录（既有 token 又有 username）
   if (token && userName) {
     const payload = {
       userName,
       areaCode,
     };
-    // 这里可以继续接登录态校验逻辑
-    // await store.dispatch('LOGINWITHTOKEN', payload)
     console.log("route payload", payload);
   }
 
-  // 未登录的情况：没有 token 或 username，且当前路由不是登录页
-  if ((!token || !userName) && to.path !== "/login") {
-    next("/login");
-  } else {
-    next();
+  if (token && to.path === "/login") {
+    next({ path: "/" });
+    return;
   }
+
+  if (!token && to.path !== "/login") {
+    next({ path: "/login", query: { redirect: to.path } });
+    return;
+  }
+
+  next();
 });
 
 export default router;

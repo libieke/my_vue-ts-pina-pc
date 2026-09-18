@@ -2,16 +2,25 @@ import { defineStore, acceptHMRUpdate } from "pinia";
 
 import type { loginResponseData } from '@/api/type'
 import type { UserState } from './types/type'
-import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from '@/utils/token'
+import {
+  SET_TOKEN,
+  GET_TOKEN,
+  REMOVE_TOKEN,
+  SET_USER_INFO,
+  GET_USER_INFO,
+  REMOVE_USER_INFO,
+} from '@/utils/token'
 import { reqLogin, reqUserInfo } from '@/api/api'
 import useTagsStore from '@/store/tags'
+
+const userInfo = GET_USER_INFO()
 
 const useUserStore = defineStore("user", {
   // id: 
   state: () => {
     return {
-      username: '',
-      avatar: '',
+      username: userInfo.username || '',
+      avatar: userInfo.avatar || '',
       fold: false, // 用户控制菜单折叠还是收起
       token: GET_TOKEN(),//存储用户唯一标识,本地存储持久化token
     }
@@ -31,8 +40,10 @@ const useUserStore = defineStore("user", {
         this.token = result.data.token
         // 保存 username 到 Pinia store
         this.username = result.data.username
-        // 保存 token 到本地存储（持久化）
+        this.avatar = result.data.avatar || '/src/assets/pictrue/avatar.png'
+        // 保存到本地存储（持久化）
         SET_TOKEN(result.data.token as string)
+        SET_USER_INFO({ username: this.username, avatar: this.avatar })
         // 返回成功标识
         return Promise.resolve('ok')
       } else {
@@ -47,6 +58,7 @@ const useUserStore = defineStore("user", {
       if (result.code === 200) {
         this.username = result.data.checkUser.username
         this.avatar = result.data.checkUser.avatar
+        SET_USER_INFO({ username: this.username, avatar: this.avatar })
       } else {
         throw new Error(result.msg || '获取用户信息失败')
       }
@@ -60,8 +72,9 @@ const useUserStore = defineStore("user", {
       this.avatar = ''
       this.fold = false
       
-      // 2. 清空本地存储中的 token
+      // 2. 清空本地存储中的 token 和用户信息
       REMOVE_TOKEN()
+      REMOVE_USER_INFO()
       
       // 3. 清空标签页，只保留首页
       const tagsStore = useTagsStore()
