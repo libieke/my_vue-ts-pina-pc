@@ -1,6 +1,8 @@
 # Vue3 TypeScript Pinia 后台管理系统
 
 一个基于 Vue 3 + TypeScript + Pinia + Element Plus 的现代化后台管理系统模板，提供开箱即用的完整开发框架。
+# 在线演示地址
+https://libieke.github.io/my_vue-ts-pina-pc/home
 
 ## 📋 目录
 
