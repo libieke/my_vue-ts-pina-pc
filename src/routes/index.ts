@@ -61,10 +61,12 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const userStore = useUserStore();
+  const token = userStore.token;
   const userName = userStore.username;
   const areaCode = to.query.areaCode;
 
-  if (userName) {
+  // 检查是否真的已登录（既有 token 又有 username）
+  if (token && userName) {
     const payload = {
       userName,
       areaCode,
@@ -74,7 +76,8 @@ router.beforeEach((to, _from, next) => {
     console.log("route payload", payload);
   }
 
-  if (!userName && to.path !== "/login") {
+  // 未登录的情况：没有 token 或 username，且当前路由不是登录页
+  if ((!token || !userName) && to.path !== "/login") {
     next("/login");
   } else {
     next();

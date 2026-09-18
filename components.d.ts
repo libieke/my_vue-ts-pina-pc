@@ -11,6 +11,7 @@ declare module 'vue' {
     Breadcrumb: typeof import('./src/components/Breadcrumb/index.vue')['default']
     ChartBar: typeof import('./src/components/ChartBar/index.vue')['default']
     ContentTitle: typeof import('./src/components/ContentTitle/index.vue')['default']
+    copy: typeof import('./src/components/SidebarItem/sidebarItem copy.vue')['default']
     CustomTable: typeof import('./src/components/CustomTable/index.vue')['default']
     Dialog: typeof import('./src/components/Dialog/index.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']

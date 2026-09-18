@@ -4,12 +4,13 @@ import type { loginResponseData } from '@/api/type'
 import type { UserState } from './types/type'
 import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from '@/utils/token'
 import { reqLogin, reqUserInfo } from '@/api/api'
+import useTagsStore from '@/store/tags'
 
 const useUserStore = defineStore("user", {
   // id: 
   state: () => {
     return {
-      username: 'libieke',
+      username: '',
       avatar: '',
       fold: false, // 用户控制菜单折叠还是收起
       token: GET_TOKEN(),//存储用户唯一标识,本地存储持久化token
@@ -20,22 +21,23 @@ const useUserStore = defineStore("user", {
   },
   actions: {
     async userLogin(data: any) {
-      // 登录请求
-      let result: any = await reqLogin(data);
-      console.log(result);
-      //登录请求：成功200->token
-      //登录请求：失败201->登录失败错误的信息
-      if (result.code == 200) {
-        //由于pinia|vuex存储数据其实利用js对象
-        //pinia仓库存储一下token
-        this.token = result.data.token;
-        //本地存储持久化存储一份
-        // localStorage.setItem('TOKEN', result.data.token as string)
-        SET_TOKEN((result.data.token as string))
-        // 能保证当前asnyc函数返回一个成功的promise
-        return 'ok';
+      // 调用登录接口
+      let result: any = await reqLogin(data)
+      console.log('登录响应:', result)
+      
+      // 登录成功（code === 200）
+      if (result.code === 200) {
+        // 保存 token 到 Pinia store
+        this.token = result.data.token
+        // 保存 username 到 Pinia store
+        this.username = result.data.username
+        // 保存 token 到本地存储（持久化）
+        SET_TOKEN(result.data.token as string)
+        // 返回成功标识
+        return Promise.resolve('ok')
       } else {
-        return Promise.reject(new Error(result.data.message))
+        // 登录失败
+        return Promise.reject(new Error(result.msg || '登录失败'))
       }
     },
     async userInfo() {
@@ -45,15 +47,31 @@ const useUserStore = defineStore("user", {
       if (result.code === 200) {
         this.username = result.data.checkUser.username
         this.avatar = result.data.checkUser.avatar
+      } else {
+        throw new Error(result.msg || '获取用户信息失败')
       }
     },
 
     userLogout() {
-      // 目前没有mock接口：退出登录接口（通知服务器本地用户唯一标识失败）
+      // 退出登录：清空所有用户信息和token
+      // 1. 清空 Pinia store 中的状态
       this.token = ''
       this.username = ''
       this.avatar = ''
+      this.fold = false
+      
+      // 2. 清空本地存储中的 token
       REMOVE_TOKEN()
+      
+      // 3. 清空标签页，只保留首页
+      const tagsStore = useTagsStore()
+      tagsStore.delAllViews()
+      
+      // 4. 可选：清空其他相关存储
+      // localStorage.removeItem('user_info')
+      // sessionStorage.clear()
+      
+      return Promise.resolve()
     }
 
   }

@@ -11,7 +11,10 @@
         </div>
         <div class="name padding-r-20">{{ username }}</div>
         <div class="time padding-r-20">{{ nowTime }}</div>
-        <div class="logout padding-r-10" @click="loguot">退出</div>
+        <div class="logout padding-r-10" @click="handleLogout">
+          <el-icon style="margin-right: 4px;"><SwitchButton /></el-icon>
+          退出
+        </div>
       </div>
     </div>
   </div>
@@ -20,23 +23,67 @@
 <script setup lang="ts">
 import { parseTime } from "@/utils/utils.js";
 import useUserStore from "@/store/home";
-let useStore = useUserStore();
-let $router = useRouter();
-let $route = useRoute();
+import { useRouter, useRoute } from "vue-router";
+import { ref, onMounted } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { SwitchButton } from "@element-plus/icons-vue";
+
+const userStore = useUserStore();
+const $router = useRouter();
+const $route = useRoute();
+
 let avatar = ref("/src/assets/pictrue/avatar.png");
-let username = ref();
-username.value = useStore.username;
+let username = ref("");
+username.value = userStore.username;
 let nowTime = ref("");
+
 onMounted(() => {
   setInterval(() => {
     nowTime.value = parseTime(new Date());
   });
 });
 
-const loguot = () => {
-  useStore.userLogout();
-  // 第三件事情：跳转到登录页面，通过query参数传递退出登录前的路径
-  $router.push({ path: "/login", query: { redirect: $route.path } });
+/**
+ * 处理退出登录
+ * 1. 显示确认对话框
+ * 2. 清空用户信息和 token
+ * 3. 跳转到登录页面
+ */
+const handleLogout = () => {
+  ElMessageBox.confirm(
+    "确定要退出登录吗？",
+    "退出登录",
+    {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    }
+  )
+    .then(async () => {
+      // 用户点击确定
+      try {
+        // 调用 store 中的退出登录方法，清空所有用户信息
+        await userStore.userLogout();
+        
+        ElMessage.success("退出登录成功");
+        
+        // 延迟 500ms 后跳转，让用户看到成功提示
+        setTimeout(() => {
+          // 跳转到登录页面，并传递当前路径作为 redirect 参数（用户可以登录后返回原页面）
+          $router.push({
+            path: "/login",
+            query: { redirect: $route.path },
+          });
+        }, 500);
+      } catch (error) {
+        ElMessage.error("退出登录失败，请重试");
+        console.error("退出登录出错:", error);
+      }
+    })
+    .catch(() => {
+      // 用户点击取消，不做任何操作
+      ElMessage.info("已取消退出");
+    });
 };
 </script>
 
@@ -81,9 +128,14 @@ const loguot = () => {
     .logout {
       font-size: 14px;
       color: #333;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s ease;
+      
       &:hover {
-        color: #999;
-        cursor: pointer;
+        color: #f56c6c;
+        transform: scale(1.05);
       }
     }
   }

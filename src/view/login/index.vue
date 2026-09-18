@@ -94,34 +94,44 @@ const rules = reactive<FormRules<RuleForm>>({
   userName: [
     {
       required: true,
-      min: 5,
+      min: 4,
       max: 10,
       message: "用户名长度应为5-10位",
       trigger: "change",
     },
   ],
   passWord: [
-    { required: true, min: 6, max: 10, message: "密码长度应为6-10位", trigger: "change" },
+    {
+      required: true,
+      min: 5,
+      max: 10,
+      message: "密码长度应为6-10位",
+      trigger: "change",
+    },
   ],
 });
 
 const onSubmit = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  await formEl.validate((valid, fields) => {
+  await formEl.validate(async (valid, fields) => {
     if (valid) {
       console.log("submit!");
       // 加载效果：开始加载
       loading.value = true;
       // 成功的话到首页，失败的话弹出失败信息
       try {
-        useStore.userLogin(formData);
-        let redirect: any = $route.query.redirect;
-        $router.push({ path: redirect || "/" });
+        // 等待登录接口返回结果
+        await useStore.userLogin(formData);
+
         // 登陆成功提示
         ElNotification({
           type: "success",
           message: "登陆成功",
         });
+
+        let redirect: any = $route.query.redirect;
+        $router.push({ path: redirect || "/" });
+
         // 登录成功加载效果消失
         loading.value = false;
       } catch (error) {
@@ -130,7 +140,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         // 登录失败的提示信息
         ElNotification({
           type: "error",
-          message: (error as Error).message,
+          message: (error as Error).message || "登录失败，请检查账号密码",
         });
       }
     } else {
