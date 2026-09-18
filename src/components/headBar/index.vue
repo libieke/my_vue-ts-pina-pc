@@ -27,12 +27,14 @@ import { useRouter, useRoute } from "vue-router";
 import { ref, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { SwitchButton } from "@element-plus/icons-vue";
+// 导入头像图片
+import avatarImg from "@/assets/pictrue/avatar.png";
 
 const userStore = useUserStore();
 const $router = useRouter();
 const $route = useRoute();
 
-let avatar = ref("/src/assets/pictrue/avatar.png");
+let avatar = ref(avatarImg);
 let username = ref("");
 username.value = userStore.username;
 let nowTime = ref("");

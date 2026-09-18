@@ -1,4 +1,7 @@
 import request from "@/utils/request";
+// 导入头像图片
+import avatarImg from "@/assets/pictrue/avatar.png";
+
 const API = `/mes-api`;
 
 // ==================== 类型定义 ====================
@@ -38,7 +41,7 @@ const MOCK_USERS: any = {
     password: "111111",
     user: {
       username: "admin",
-      avatar: "/src/assets/pictrue/avatar.png",
+      avatar: avatarImg,
       email: "admin@example.com",
       role: "管理员",
     },
@@ -48,7 +51,7 @@ const MOCK_USERS: any = {
     password: "123456",
     user: {
       username: "user",
-      avatar: "/src/assets/pictrue/avatar.png",
+      avatar: avatarImg,
       email: "user@example.com",
       role: "普通用户",
     },
