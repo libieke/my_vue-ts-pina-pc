@@ -4,6 +4,9 @@
 # 在线演示地址
 https://libieke.github.io/my_vue-ts-pina-pc/home
 
+账号：admin，密码：111111 
+账号：user，密码：123456 
+
 ## 📋 目录
 
 - [项目简介](#项目简介)
@@ -487,7 +490,7 @@ const isLogin = userStore.isLogin
 const handleLogin = async () => {
   const result = await userStore.userLogin({ 
     name: 'admin', 
-    paw: '123456' 
+    paw: '111111' 
   })
 }
 
