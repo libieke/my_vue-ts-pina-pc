@@ -10,9 +10,11 @@
       "@/*": ["./src/*"]
     },
     "allowSyntheticDefaultImports": true,
+    "types": ["vite/client"],
+    "ignoreDeprecations": "5.0",
 
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
@@ -29,6 +31,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
+    "src/**/*.d.ts",
     "Element-puls.d.ts",
     "auto-import.d.ts"
   ]

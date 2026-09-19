@@ -11,6 +11,7 @@
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
     "@element-plus/icons-vue": "^2.3.1",
+    "@vueup/vue-quill": "^1.5.5",
     "ant-design-vue": "^4.2.5",
     "axios": "^1.7.7",
     "echarts": "^5.5.1",
@@ -20,6 +21,7 @@
     "normalize.css": "^8.0.1",
     "pinia": "^2.2.2",
     "postcss-nesting": "^13.0.0",
+    "quill": "^2.0.3",
     "vue": "^3.4.37",
     "vue-router": "^4.4.5"
   },

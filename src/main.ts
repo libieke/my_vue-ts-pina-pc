@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import './style.scss';
 import 'element-plus/dist/index.css'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import 'virtual:svg-icons-register'
 import router from "@/routes/index";
 import App from './App.vue'

@@ -57,6 +57,24 @@
       </div>
     </div>
 
+    <!-- 富文本示例 -->
+    <div class="section-card rich-text-demo">
+      <div class="section-header">
+        <h3 class="section-title">富文本编辑器</h3>
+      </div>
+      <RichText
+        v-model="richTextContent"
+        :height="220"
+        :max-length="500"
+        :show-image-upload="true"
+        placeholder="请输入公告内容..."
+      />
+      <div class="preview-box">
+        <div class="preview-title">内容预览</div>
+        <div v-html="richTextContent" class="preview-content"></div>
+      </div>
+    </div>
+
     <!-- 图表区域 -->
     <div class="chart-row">
       <div class="section-card chart-card">
@@ -182,8 +200,13 @@ import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import ChartBar from "@/components/ChartBar/index.vue";
 import PieChart from "@/components/PieChart/index.vue";
+import RichText from "@/components/RichText/index.vue";
 
 const router = useRouter();
+
+const richTextContent = ref(
+  "<p>欢迎使用 <strong>通用富文本组件</strong>，支持 <em>加粗</em>、<u>下划线</u>、列表和链接等基础编辑能力。</p>"
+);
 
 // 问候语
 const greeting = computed(() => {
@@ -466,6 +489,42 @@ onMounted(() => {
       .quick-label {
         font-size: 13px;
         color: #4e5969;
+      }
+    }
+  }
+
+  /* 富文本示例 */
+  .rich-text-demo {
+    margin-bottom: 20px;
+
+    .preview-box {
+      margin-top: 16px;
+      background: #f8fafc;
+      border: 1px solid #eef2f7;
+      border-radius: 8px;
+      padding: 16px;
+
+      .preview-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 10px;
+      }
+
+      .preview-content {
+        min-height: 80px;
+        line-height: 1.8;
+        color: #1f2937;
+        font-size: 14px;
+
+        :deep(p) {
+          margin: 0 0 8px;
+        }
+
+        :deep(ul), :deep(ol) {
+          padding-left: 20px;
+          margin: 8px 0;
+        }
       }
     }
   }
