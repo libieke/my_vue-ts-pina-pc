@@ -1,46 +1,50 @@
 <template>
-  <div class="page-shell">
-    <div class="page-header">
-      <div>
-        <h2>订单管理</h2>
+  <ContentTitle>
+    <div class="page-shell">
+      <div class="page-header">
+        <div>
+          <h2>订单管理</h2>
+        </div>
+        <el-button type="primary">新建订单</el-button>
       </div>
-      <el-button type="primary">新建订单</el-button>
-    </div>
 
-    <div class="stat-grid">
-      <div v-for="item in stats" :key="item.label" class="stat-card">
-        <div class="stat-label">{{ item.label }}</div>
-        <div class="stat-value">{{ item.value }}</div>
-        <div class="stat-trend" :class="item.trend >= 0 ? 'up' : 'down'">
-          {{ item.trend >= 0 ? "+" : "" }}{{ item.trend }}%
+      <div class="stat-grid">
+        <div v-for="item in stats" :key="item.label" class="stat-card">
+          <div class="stat-label">{{ item.label }}</div>
+          <div class="stat-value">{{ item.value }}</div>
+          <div class="stat-trend" :class="item.trend >= 0 ? 'up' : 'down'">
+            {{ item.trend >= 0 ? "+" : "" }}{{ item.trend }}%
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="content-card">
-      <div class="content-header">
-        <h3>订单列表</h3>
-        <el-input
-          v-model="keyword"
-          placeholder="搜索订单编号/客户名称"
-          clearable
-          style="width: 260px"
-        />
+      <div class="content-card">
+        <div class="content-header">
+          <h3>订单列表</h3>
+          <el-input
+            v-model="keyword"
+            placeholder="搜索订单编号/客户名称"
+            clearable
+            style="width: 260px"
+          />
+        </div>
+
+        <el-table :data="filteredList" stripe border style="width: 100%">
+          <el-table-column prop="orderNo" label="订单编号" width="160" />
+          <el-table-column prop="customer" label="客户" width="180" />
+          <el-table-column prop="amount" label="金额" width="120" />
+          <el-table-column prop="status" label="状态" width="120">
+            <template #default="scope">
+              <el-tag :type="statusType(scope.status)">{{
+                scope.status
+              }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="time" label="下单时间" />
+        </el-table>
       </div>
-
-      <el-table :data="filteredList" stripe border style="width: 100%">
-        <el-table-column prop="orderNo" label="订单编号" width="160" />
-        <el-table-column prop="customer" label="客户" width="180" />
-        <el-table-column prop="amount" label="金额" width="120" />
-        <el-table-column prop="status" label="状态" width="120">
-          <template #default="scope">
-            <el-tag :type="statusType(scope.status)">{{ scope.status }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="time" label="下单时间" />
-      </el-table>
     </div>
-  </div>
+  </ContentTitle>
 </template>
 
 <script setup lang="ts">
