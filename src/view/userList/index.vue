@@ -68,9 +68,13 @@
 </template>
 
 <script setup>
+import { watch } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 import Search from "../../components/Search/index.vue";
 import Pagination from "../../components/Pagination/index.vue";
 import Dialog from "../../components/Dialog/index.vue";
+import { useDialog, useApprovalStatus, useTable } from "@/hooks";
+import { mockUserListApi } from "@/mock/userData";
 import { debounce } from "lodash";
 
 const searchFields = [
@@ -101,16 +105,22 @@ const searchFields = [
   },
 ];
 
-const searchForm = ref({
-  nickName: "",
-  username: "",
-  type: "",
-  orgName: "",
+const {
+  currentPage,
+  pageSize,
+  searchForm,
+  filteredData,
+  pagedData,
+  resetPage,
+  setData,
+} = useTable({
+  initialData: [],
+  pageSize: 10,
 });
 
-const currentPage = ref(1);
-const pageSize = ref(10);
-const dialogVisible = ref(false);
+const { visible: dialogVisible, open: openDialog, close: closeDialog } = useDialog(false);
+const { getStatusLabel } = useApprovalStatus();
+const approvalStatusLabel = computed(() => getStatusLabel(1));
 const editForm = ref({
   nickName: "",
   username: "",
@@ -119,32 +129,7 @@ const editForm = ref({
 });
 
 const tableData = reactive({
-  data: [
-    {
-      nickName: "张三",
-      username: "zhangsan",
-      type: 0,
-      orgName: "华为",
-    },
-    {
-      nickName: "李四",
-      username: "lisi",
-      type: 1,
-      orgName: "腾讯",
-    },
-    {
-      nickName: "王五",
-      username: "wangsu",
-      type: 1,
-      orgName: "阿里",
-    },
-    {
-      nickName: "赵六",
-      username: "zhaoliu",
-      type: 0,
-      orgName: "京东",
-    },
-  ],
+  data: [],
   titles: [
     {
       title: "用户",
@@ -169,46 +154,33 @@ const tableData = reactive({
   ],
 });
 
-const filteredTableData = computed(() => {
-  const filterData = tableData.data.filter((row) => {
-    const nickName = String(row.nickName || "");
-    const username = String(row.username || "");
-    const orgName = String(row.orgName || "");
-    const type = Number(row.type);
+const loadUserList = async () => {
+  // 这里先使用 mock 数据；后续接真实接口时直接替换为 request() 调用即可
+  const res = await mockUserListApi();
+  tableData.data = Array.isArray(res?.data) ? res.data : [];
+};
 
-    const matchNickName =
-      !searchForm.value.nickName ||
-      nickName.includes(searchForm.value.nickName);
-    const matchUsername =
-      !searchForm.value.username ||
-      username.includes(searchForm.value.username);
-    const matchType =
-      searchForm.value.type === "" ||
-      searchForm.value.type === null ||
-      searchForm.value.type === undefined
-        ? true
-        : type === Number(searchForm.value.type);
-    const matchOrgName =
-      !searchForm.value.orgName || orgName.includes(searchForm.value.orgName);
+watch(
+  () => tableData.data,
+  (val) => {
+    setData(val);
+  },
+  { immediate: true, deep: true },
+);
 
-    return matchNickName && matchUsername && matchType && matchOrgName;
-  });
-
-  return {
-    ...tableData,
-    data: filterData,
-  };
+onMounted(() => {
+  loadUserList();
 });
 
-const pagedTableData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
+const filteredTableData = computed(() => ({
+  ...tableData,
+  data: filteredData.value,
+}));
 
-  return {
-    ...tableData,
-    data: filteredTableData.value.data.slice(start, end),
-  };
-});
+const pagedTableData = computed(() => ({
+  ...tableData,
+  data: pagedData.value,
+}));
 
 const handlePageChange = ({ page, limit }) => {
   currentPage.value = page;
@@ -216,7 +188,7 @@ const handlePageChange = ({ page, limit }) => {
 };
 
 const handleSearch = () => {
-  currentPage.value = 1;
+  resetPage();
   console.log("查询条件：", { ...searchForm.value });
 };
 
@@ -227,32 +199,80 @@ const handleSearchReset = () => {
     type: "",
     orgName: "",
   };
-  currentPage.value = 1;
+  resetPage();
 };
 
 const handleEdit = (row) => {
   editForm.value = { ...row };
-  dialogVisible.value = true;
+  openDialog();
 };
 
 const handleDialogConfirm = () => {
-  const index = tableData.data.findIndex((item) => item.username === editForm.value.username);
-  if (index !== -1) {
-    tableData.data[index] = { ...editForm.value };
-  }
-  dialogVisible.value = false;
+  ElMessageBox.confirm(
+    `确定保存对 “${editForm.value?.nickName || editForm.value?.username || '当前用户'}” 的修改吗？`,
+    "确认保存",
+    {
+      confirmButtonText: "确定保存",
+      cancelButtonText: "取消",
+      type: "warning",
+    },
+  )
+    .then(() => {
+      const index = tableData.data.findIndex(
+        (item) => item.username === editForm.value.username,
+      );
+      if (index !== -1) {
+        tableData.data[index] = { ...editForm.value };
+      }
+      ElMessage.success("保存成功");
+      closeDialog();
+    })
+    .catch(() => {
+      ElMessage.info("已取消保存");
+    });
 };
 
 const handleDialogCancel = () => {
-  dialogVisible.value = false;
+  closeDialog();
 };
 
 const handleDel = (row) => {
-  console.log("del :>> ", row);
+  ElMessageBox.confirm(`确定删除用户 “${row?.nickName || row?.username || '当前用户'}” 吗？`, "确认删除", {
+    confirmButtonText: "确定删除",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      const index = tableData.data.findIndex((item) => item.username === row.username);
+      if (index !== -1) {
+        tableData.data.splice(index, 1);
+      }
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {
+      ElMessage.info("已取消删除");
+    });
 };
 // 表格内按钮
 const handleReset = (row) => {
-  console.log("resetFn :>> ", row);
+  ElMessageBox.confirm(`确定重置用户 “${row?.nickName || row?.username || '当前用户'}” 的状态吗？`, "确认重置", {
+    confirmButtonText: "确认重置",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      const index = tableData.data.findIndex((item) => item.username === row.username);
+      if (index !== -1) {
+        tableData.data[index] = {
+          ...tableData.data[index],
+          type: 1,
+        };
+      }
+      ElMessage.success("重置成功");
+    })
+    .catch(() => {
+      ElMessage.info("已取消重置");
+    });
 };
 // 选中项发生改变
 const handleSelectionChange = debounce((val) => {
@@ -286,8 +306,6 @@ onMounted(() => {
   border: 1px solid #e8edf3;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  padding-top: 18px;
-  padding-bottom: 18px;
 }
 
 .table-panel {

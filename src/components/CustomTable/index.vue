@@ -1,7 +1,7 @@
 <template>
   <el-table
     ref="refTable"
-    :data="tableData.data"
+    :data="safeTableData"
     :style="{ width: '100%', ...cellStyle }"
     :header-cell-style="headerCellStyle"
     :cell-style="cellStyle"
@@ -19,7 +19,7 @@
       </template>
     </el-table-column>
     <el-table-column
-      v-for="item in tableData.titles"
+      v-for="item in safeTitles"
       :key="item.prop"
       :prop="item.prop"
       :label="item.title"
@@ -62,7 +62,7 @@ let props = defineProps({
   tableData: {
     type: Object,
     default: () => {
-      return {};
+      return { data: [], titles: [] };
     },
   },
   // // 设置斑马纹的颜色
@@ -107,6 +107,16 @@ let emit = defineEmits([
   "selectAllChange",
   "resetFn",
 ]);
+
+// 防止 tableData 为空时，el-table 直接读取 undefined.data，从而出现白屏或运行时报错
+const safeTableData = computed(() => {
+  return Array.isArray(props.tableData?.data) ? props.tableData.data : [];
+});
+
+// 表头同样兜底，避免后端没返回 titles 或返回 null 时渲染失败
+const safeTitles = computed(() => {
+  return Array.isArray(props.tableData?.titles) ? props.tableData.titles : [];
+});
 
 // 选中项发生改变
 const handleSelectionChange = (selection) => {

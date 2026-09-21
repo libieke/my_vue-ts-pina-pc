@@ -22,8 +22,20 @@ export const GET_USER_INFO = () => {
   }
 }
 
+export const SET_USER_ROLE = (role: string) => {
+  localStorage.setItem('USER_ROLE', role)
+}
+
+export const GET_USER_ROLE = () => {
+  return localStorage.getItem('USER_ROLE') || 'user'
+}
+
 export const REMOVE_USER_INFO = () => {
   localStorage.removeItem('USER_INFO')
+}
+
+export const REMOVE_USER_ROLE = () => {
+  localStorage.removeItem('USER_ROLE')
 }
 
 // 本地存储删除数据方法

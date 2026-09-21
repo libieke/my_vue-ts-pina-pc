@@ -9,11 +9,15 @@ import {
   SET_USER_INFO,
   GET_USER_INFO,
   REMOVE_USER_INFO,
+  SET_USER_ROLE,
+  GET_USER_ROLE,
+  REMOVE_USER_ROLE,
 } from '@/utils/token'
 import { reqLogin, reqUserInfo } from '@/api/api'
 import useTagsStore from '@/store/tags'
 
 const userInfo = GET_USER_INFO()
+const userRole = GET_USER_ROLE()
 
 const useUserStore = defineStore("user", {
   // id: 
@@ -21,6 +25,7 @@ const useUserStore = defineStore("user", {
     return {
       username: userInfo.username || '',
       avatar: userInfo.avatar || '',
+      role: userRole,
       fold: false, // 用户控制菜单折叠还是收起
       token: GET_TOKEN(),//存储用户唯一标识,本地存储持久化token
     }
@@ -36,14 +41,17 @@ const useUserStore = defineStore("user", {
       
       // 登录成功（code === 200）
       if (result.code === 200) {
+        const loginRole = (result.data?.role || this.username || result.data?.username || '').toLowerCase() === 'admin' ? 'admin' : 'user'
         // 保存 token 到 Pinia store
         this.token = result.data.token
         // 保存 username 到 Pinia store
         this.username = result.data.username
         this.avatar = result.data.avatar || '/src/assets/pictrue/avatar.png'
+        this.role = loginRole
         // 保存到本地存储（持久化）
         SET_TOKEN(result.data.token as string)
         SET_USER_INFO({ username: this.username, avatar: this.avatar })
+        SET_USER_ROLE(this.role)
         // 返回成功标识
         return Promise.resolve('ok')
       } else {
@@ -58,7 +66,9 @@ const useUserStore = defineStore("user", {
       if (result.code === 200) {
         this.username = result.data.checkUser.username
         this.avatar = result.data.checkUser.avatar
+        this.role = this.username === 'admin' ? 'admin' : 'user'
         SET_USER_INFO({ username: this.username, avatar: this.avatar })
+        SET_USER_ROLE(this.role)
       } else {
         throw new Error(result.msg || '获取用户信息失败')
       }
@@ -70,11 +80,13 @@ const useUserStore = defineStore("user", {
       this.token = ''
       this.username = ''
       this.avatar = ''
+      this.role = 'user'
       this.fold = false
       
       // 2. 清空本地存储中的 token 和用户信息
       REMOVE_TOKEN()
       REMOVE_USER_INFO()
+      REMOVE_USER_ROLE()
       
       // 3. 清空标签页，只保留首页
       const tagsStore = useTagsStore()

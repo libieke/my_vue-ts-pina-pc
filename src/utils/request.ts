@@ -24,13 +24,26 @@ service.interceptors.request.use(
   }
 )
 
+// 统一处理接口返回数据，避免后端返回 null / undefined / 空对象时导致前端直接报错
+// 常见场景：返回 { data: [] }、{ list: [] } 或直接返回 []，都能安全兜底成可渲染数据
+const normalizeResponseData = (payload: any) => {
+  if (Array.isArray(payload)) return payload
+  if (payload && typeof payload === 'object') {
+    if (Array.isArray(payload.data)) return payload.data
+    if (Array.isArray(payload.list)) return payload.list
+    return payload
+  }
+  return payload ?? []
+}
+
 // response interceptor
 service.interceptors.response.use(
   (response: any) => {
-    return response.data
+    return normalizeResponseData(response?.data)
   },
   error => {
-    if (error.response.status == 403) {
+    const status = error?.response?.status
+    if (status == 403) {
       ElMessage.error('错了')
     } else {
       ElMessage.error('服务器请求错误，请稍后再试')

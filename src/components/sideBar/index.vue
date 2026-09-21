@@ -19,8 +19,16 @@
 </template>
 
 <script lang="ts" setup>
+import useUserStore from '@/store/home'
+
+const userStore = useUserStore()
 const router = useRouter().getRoutes();
-const routerList = router.filter((v) => v.meta && v.meta.isShow);
+const routerList = router.filter((v) => {
+  const meta = v.meta as { isShow?: boolean; roles?: string[] } | undefined
+  if (!meta || !meta.isShow) return false
+  if (!meta.roles) return true
+  return meta.roles.includes(userStore.role)
+});
 </script>
 
 <style lang="scss" scoped>

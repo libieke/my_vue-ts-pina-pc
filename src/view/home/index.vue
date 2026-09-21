@@ -27,10 +27,17 @@
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ item.value }}</div>
-          <div class="stat-label">{{ item.label }}</div>
+          <div class="stat-label-row">
+            <span class="stat-label">{{ item.label }}</span>
+            <span v-if="item.label === '总用户数'" class="stat-live-tag">
+              {{ item.liveText }}
+            </span>
+          </div>
         </div>
         <div class="stat-trend" :class="item.trend > 0 ? 'up' : 'down'">
-          <el-icon><CaretTop v-if="item.trend > 0" /><CaretBottom v-else /></el-icon>
+          <el-icon
+            ><CaretTop v-if="item.trend > 0" /><CaretBottom v-else
+          /></el-icon>
           <span>{{ Math.abs(item.trend) }}%</span>
         </div>
       </div>
@@ -50,7 +57,9 @@
           @click="handleQuickAction(item)"
         >
           <div class="quick-icon" :style="{ background: item.bgColor }">
-            <el-icon :size="22" color="#fff"><component :is="item.icon" /></el-icon>
+            <el-icon :size="22" color="#fff"
+              ><component :is="item.icon"
+            /></el-icon>
           </div>
           <span class="quick-label">{{ item.label }}</span>
         </div>
@@ -122,7 +131,8 @@
               size="small"
               effect="light"
               class="notice-tag"
-            >{{ item.tag }}</el-tag>
+              >{{ item.tag }}</el-tag
+            >
             <span class="notice-title">{{ item.title }}</span>
             <span class="notice-date">{{ item.date }}</span>
           </li>
@@ -139,14 +149,14 @@
           <el-link type="primary" :underline="false">全部</el-link>
         </div>
         <ul class="todo-list">
-          <li
-            v-for="(item, index) in todoList"
-            :key="index"
-            class="todo-item"
-          >
+          <li v-for="(item, index) in todoList" :key="index" class="todo-item">
             <el-checkbox v-model="item.done" />
-            <span class="todo-text" :class="{ done: item.done }">{{ item.text }}</span>
-            <span class="todo-priority" :class="item.priority">{{ item.priorityText }}</span>
+            <span class="todo-text" :class="{ done: item.done }">{{
+              item.text
+            }}</span>
+            <span class="todo-priority" :class="item.priority">{{
+              item.priorityText
+            }}</span>
           </li>
         </ul>
       </div>
@@ -161,12 +171,10 @@
           <el-link type="primary" :underline="false">更多</el-link>
         </div>
         <ul class="rank-list">
-          <li
-            v-for="(item, index) in rankList"
-            :key="index"
-            class="rank-item"
-          >
-            <span class="rank-num" :class="{ top: index < 3 }">{{ index + 1 }}</span>
+          <li v-for="(item, index) in rankList" :key="index" class="rank-item">
+            <span class="rank-num" :class="{ top: index < 3 }">{{
+              index + 1
+            }}</span>
             <span class="rank-name">{{ item.name }}</span>
             <span class="rank-value">{{ item.value }}</span>
           </li>
@@ -177,7 +185,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, markRaw } from "vue";
 import {
   User,
   View,
@@ -201,11 +208,18 @@ import { useRouter } from "vue-router";
 import ChartBar from "@/components/ChartBar/index.vue";
 import PieChart from "@/components/PieChart/index.vue";
 import RichText from "@/components/RichText/index.vue";
+import {
+  buildDashboardSubscribeMessage,
+  DASHBOARD_WS_URL,
+  parseDashboardMessage,
+  type DashboardStats,
+} from "@/api/websocket";
+import { useWebSocket } from "@/hooks";
 
 const router = useRouter();
 
 const richTextContent = ref(
-  "<p>欢迎使用 <strong>通用富文本组件</strong>，支持 <em>加粗</em>、<u>下划线</u>、列表和链接等基础编辑能力。</p>"
+  "<p>欢迎使用 <strong>通用富文本组件</strong>，支持 <em>加粗</em>、<u>下划线</u>、列表和链接等基础编辑能力。</p>",
 );
 
 // 问候语
@@ -226,23 +240,134 @@ const currentDate = computed(() => {
   return `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${weekDays[now.getDay()]}`;
 });
 
+const formatNumber = (value: number) =>
+  new Intl.NumberFormat("en-US").format(value);
+
+const dashboardStats = reactive<DashboardStats>({
+  totalUsers: 12580,
+  todayVisitors: 3842,
+  orderTotal: 1256,
+  totalSales: 98560,
+});
+
+const socketStatus = ref("离线");
+
+const { status, send } = useWebSocket({
+  url: DASHBOARD_WS_URL,
+  autoConnect: true,
+  reconnect: true,
+  reconnectInterval: 15000,
+  onOpen: () => {
+    socketStatus.value = "实时";
+    send(buildDashboardSubscribeMessage());
+  },
+  onMessage: (event) => {
+    const nextStats = parseDashboardMessage(event.data);
+    if (!nextStats) return;
+
+    Object.assign(dashboardStats, nextStats);
+    socketStatus.value = "实时";
+  },
+  onClose: () => {
+    socketStatus.value = "离线";
+  },
+  onError: () => {
+    socketStatus.value = "离线";
+  },
+});
+
+const totalUsersLabel = computed(() => formatNumber(dashboardStats.totalUsers));
+const todayVisitorsLabel = computed(() =>
+  formatNumber(dashboardStats.todayVisitors),
+);
+const orderTotalLabel = computed(() => formatNumber(dashboardStats.orderTotal));
+const totalSalesLabel = computed(
+  () => `¥${formatNumber(dashboardStats.totalSales)}`,
+);
+const socketStatusText = computed(() =>
+  status.value === "open" ? "实时" : socketStatus.value,
+);
+
 // 统计卡片数据
-const statList = ref([
-  { icon: markRaw(User), label: "总用户数", value: "12,580", trend: 12.5, bgClass: "bg-blue" },
-  { icon: markRaw(View), label: "今日访问", value: "3,842", trend: 8.3, bgClass: "bg-green" },
-  { icon: markRaw(ShoppingCart), label: "订单总数", value: "1,256", trend: -3.2, bgClass: "bg-orange" },
-  { icon: markRaw(Money), label: "销售额", value: "¥98,560", trend: 15.7, bgClass: "bg-violet" },
+const statList = computed(() => [
+  {
+    icon: markRaw(User),
+    label: "总用户数",
+    value: totalUsersLabel.value,
+    liveText: socketStatusText.value,
+    trend: 12.5,
+    bgClass: "bg-blue",
+  },
+  {
+    icon: markRaw(View),
+    label: "今日访问",
+    value: todayVisitorsLabel.value,
+    liveText: socketStatusText.value,
+    trend: 8.3,
+    bgClass: "bg-green",
+  },
+  {
+    icon: markRaw(ShoppingCart),
+    label: "订单总数",
+    value: orderTotalLabel.value,
+    liveText: socketStatusText.value,
+    trend: -3.2,
+    bgClass: "bg-orange",
+  },
+  {
+    icon: markRaw(Money),
+    label: "销售额",
+    value: totalSalesLabel.value,
+    liveText: socketStatusText.value,
+    trend: 15.7,
+    bgClass: "bg-violet",
+  },
 ]);
 
 // 快捷入口
 const quickActions = ref([
-  { label: "用户管理", icon: markRaw(UserFilled), bgColor: "#409EFF", path: "/userList" },
-  { label: "订单管理", icon: markRaw(ShoppingCart), bgColor: "#67C23A", path: "" },
-  { label: "数据分析", icon: markRaw(DataAnalysis), bgColor: "#E6A23C", path: "" },
-  { label: "消息通知", icon: markRaw(Message), bgColor: "#F56C6C", path: "" },
-  { label: "文档中心", icon: markRaw(Document), bgColor: "#909399", path: "" },
-  { label: "文件管理", icon: markRaw(Folder), bgColor: "#155EE8", path: "" },
-  { label: "系统设置", icon: markRaw(Setting), bgColor: "#7052F8", path: "/userSet" },
+  {
+    label: "用户管理",
+    icon: markRaw(UserFilled),
+    bgColor: "#409EFF",
+    path: "/userList",
+  },
+  {
+    label: "订单管理",
+    icon: markRaw(ShoppingCart),
+    bgColor: "#67C23A",
+    path: "/orderManage",
+  },
+  {
+    label: "数据分析",
+    icon: markRaw(DataAnalysis),
+    bgColor: "#E6A23C",
+    path: "/dataAnalysis",
+  },
+  {
+    label: "消息通知",
+    icon: markRaw(Message),
+    bgColor: "#F56C6C",
+    path: "/messageNotice",
+  },
+  {
+    label: "文档中心",
+    icon: markRaw(Document),
+    bgColor: "#909399",
+    path: "/docCenter",
+  },
+  {
+    label: "文件管理",
+    icon: markRaw(Folder),
+    bgColor: "#155EE8",
+    path: "/fileManage",
+  },
+  {
+    label: "系统设置",
+    icon: markRaw(Setting),
+    bgColor: "#7052F8",
+    path: "/userSet",
+  },
   { label: "更多功能", icon: markRaw(Setting), bgColor: "#999999", path: "" },
 ]);
 
@@ -259,20 +384,70 @@ const chartPeriod = ref("week");
 
 // 通知公告
 const noticeList = ref([
-  { tag: "重要", type: "danger", title: "系统将于本周六凌晨进行版本升级维护", date: "09-12" },
-  { tag: "通知", type: "warning", title: "国庆节放假安排通知，请提前做好工作安排", date: "09-10" },
-  { tag: "公告", type: "primary", title: "新版后台管理系统已上线，欢迎体验", date: "09-08" },
-  { tag: "活动", type: "success", title: "秋季促销活动开始，多款产品限时优惠", date: "09-05" },
-  { tag: "通知", type: "warning", title: "请各部门及时提交本月工作总结报告", date: "09-03" },
+  {
+    tag: "重要",
+    type: "danger",
+    title: "系统将于本周六凌晨进行版本升级维护",
+    date: "09-12",
+  },
+  {
+    tag: "通知",
+    type: "warning",
+    title: "国庆节放假安排通知，请提前做好工作安排",
+    date: "09-10",
+  },
+  {
+    tag: "公告",
+    type: "primary",
+    title: "新版后台管理系统已上线，欢迎体验",
+    date: "09-08",
+  },
+  {
+    tag: "活动",
+    type: "success",
+    title: "秋季促销活动开始，多款产品限时优惠",
+    date: "09-05",
+  },
+  {
+    tag: "通知",
+    type: "warning",
+    title: "请各部门及时提交本月工作总结报告",
+    date: "09-03",
+  },
 ]);
 
 // 待办事项
 const todoList = ref([
-  { text: "审核新用户注册申请", done: false, priority: "high", priorityText: "紧急" },
-  { text: "完成季度数据报表", done: false, priority: "medium", priorityText: "重要" },
-  { text: "回复客户咨询邮件", done: true, priority: "low", priorityText: "普通" },
-  { text: "参加下午3点产品评审会", done: false, priority: "high", priorityText: "紧急" },
-  { text: "更新系统使用文档", done: false, priority: "low", priorityText: "普通" },
+  {
+    text: "审核新用户注册申请",
+    done: false,
+    priority: "high",
+    priorityText: "紧急",
+  },
+  {
+    text: "完成季度数据报表",
+    done: false,
+    priority: "medium",
+    priorityText: "重要",
+  },
+  {
+    text: "回复客户咨询邮件",
+    done: true,
+    priority: "low",
+    priorityText: "普通",
+  },
+  {
+    text: "参加下午3点产品评审会",
+    done: false,
+    priority: "high",
+    priorityText: "紧急",
+  },
+  {
+    text: "更新系统使用文档",
+    done: false,
+    priority: "low",
+    priorityText: "普通",
+  },
 ]);
 
 // 热门排行
@@ -353,7 +528,9 @@ onMounted(() => {
       display: flex;
       align-items: center;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition:
+        transform 0.3s,
+        box-shadow 0.3s;
 
       &:hover {
         transform: translateY(-4px);
@@ -382,10 +559,26 @@ onMounted(() => {
           line-height: 1.2;
         }
 
+        .stat-label-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          margin-top: 4px;
+        }
+
         .stat-label {
           font-size: 13px;
           color: #86909c;
-          margin-top: 4px;
+        }
+
+        .stat-live-tag {
+          font-size: 11px;
+          padding: 2px 6px;
+          border-radius: 999px;
+          background: rgba(64, 158, 255, 0.1);
+          color: #409eff;
+          font-weight: 600;
         }
       }
 
@@ -521,7 +714,8 @@ onMounted(() => {
           margin: 0 0 8px;
         }
 
-        :deep(ul), :deep(ol) {
+        :deep(ul),
+        :deep(ol) {
           padding-left: 20px;
           margin: 8px 0;
         }
