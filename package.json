@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
@@ -26,9 +27,12 @@
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
+    "@tomatobybike/decomment": "^0.1.6",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.6.1",
     "@vitejs/plugin-vue": "^5.1.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "sass": "^1.78.0",
     "typescript": "^5.5.3",
     "unplugin-auto-import": "^0.18.3",
@@ -36,5 +40,11 @@
     "vite": "^5.4.1",
     "vite-plugin-svg-icons": "^2.0.1",
     "vue-tsc": "^2.0.29"
+  },
+  "lint-staged": {
+    "*.{js,ts,vue}": [
+      "decomment --keep eslint-,@license,@preserve",
+      "git add"
+    ]
   }
 }
