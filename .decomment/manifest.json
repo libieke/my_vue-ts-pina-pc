@@ -1,0 +1,11 @@
+{
+  "id": "2026-09-22T06:47:53.789Z",
+  "cwd": "E:\\work\\ceshiVue\\vue3-ts-pina-temp",
+  "command": "decomment E:/work/ceshiVue/vue3-ts-pina-temp/vite.config.ts",
+  "files": [
+    {
+      "file": "vite.config.ts",
+      "backup": "E:\\work\\ceshiVue\\vue3-ts-pina-temp\\vite.config.ts.decomment.bak"
+    }
+  ]
+}
