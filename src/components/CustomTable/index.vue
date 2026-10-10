@@ -29,7 +29,7 @@
       <template v-if="item.isBotton" v-slot="scope">
         <div style="display: flex; justify-content: space-between">
           <span style="padding-top: 7px">{{ scope.row[scope.column.property] }} </span>
-          <div class="inner-btn" @click="resetFn(scope.row)">重置</div>
+          <div class="inner-btn" @click="resetFn(scope.row)">{{ $t('common.reset') }}</div>
         </div>
       </template>
       <template v-else v-slot="scope">

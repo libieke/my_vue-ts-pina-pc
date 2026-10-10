@@ -3,13 +3,13 @@
     <!-- 欢迎横幅 -->
     <div class="welcome-banner">
       <div class="welcome-left">
-        <h2 class="welcome-title">{{ greeting }}，欢迎回来 👋</h2>
-        <p class="welcome-desc">今天是 {{ currentDate }}，祝您工作愉快！</p>
+        <h2 class="welcome-title">{{ $t('home.welcomeTitle', { greeting }) }}</h2>
+        <p class="welcome-desc">{{ $t('home.todayDesc', { date: currentDate }) }}</p>
       </div>
       <div class="welcome-right">
         <div class="weather-card">
           <el-icon class="weather-icon"><Sunny /></el-icon>
-          <span class="weather-text">晴 26°C</span>
+          <span class="weather-text">{{ $t('home.weather') }}</span>
         </div>
       </div>
     </div>
@@ -29,7 +29,7 @@
           <div class="stat-value">{{ item.value }}</div>
           <div class="stat-label-row">
             <span class="stat-label">{{ item.label }}</span>
-            <span v-if="item.label === '总用户数'" class="stat-live-tag">
+            <span v-if="index === 0" class="stat-live-tag">
               {{ item.liveText }}
             </span>
           </div>
@@ -46,8 +46,8 @@
     <!-- 快捷入口 -->
     <div class="section-card">
       <div class="section-header">
-        <h3 class="section-title">快捷入口</h3>
-        <el-link type="primary" :underline="false">全部应用</el-link>
+        <h3 class="section-title">{{ $t('home.quickLinks') }}</h3>
+        <el-link type="primary" :underline="false">{{ $t('home.allApps') }}</el-link>
       </div>
       <div class="quick-actions">
         <div
@@ -69,17 +69,17 @@
     <!-- 富文本示例 -->
     <div class="section-card rich-text-demo">
       <div class="section-header">
-        <h3 class="section-title">富文本编辑器</h3>
+        <h3 class="section-title">{{ $t('home.richTextEditor') }}</h3>
       </div>
       <RichText
         v-model="richTextContent"
         :height="220"
         :max-length="500"
         :show-image-upload="true"
-        placeholder="请输入公告内容..."
+        :placeholder="$t('home.richTextPlaceholder')"
       />
       <div class="preview-box">
-        <div class="preview-title">内容预览</div>
+        <div class="preview-title">{{ $t('home.contentPreview') }}</div>
         <div v-html="richTextContent" class="preview-content"></div>
       </div>
     </div>
@@ -88,11 +88,11 @@
     <div class="chart-row">
       <div class="section-card chart-card">
         <div class="section-header">
-          <h3 class="section-title">销售趋势</h3>
+          <h3 class="section-title">{{ $t('home.salesTrend') }}</h3>
           <el-radio-group v-model="chartPeriod" size="small">
-            <el-radio-button value="week">本周</el-radio-button>
-            <el-radio-button value="month">本月</el-radio-button>
-            <el-radio-button value="year">本年</el-radio-button>
+            <el-radio-button value="week">{{ $t('home.periodWeek') }}</el-radio-button>
+            <el-radio-button value="month">{{ $t('home.periodMonth') }}</el-radio-button>
+            <el-radio-button value="year">{{ $t('home.periodYear') }}</el-radio-button>
           </el-radio-group>
         </div>
         <div class="chart-wrapper">
@@ -101,7 +101,7 @@
       </div>
       <div class="section-card chart-card">
         <div class="section-header">
-          <h3 class="section-title">访问来源</h3>
+          <h3 class="section-title">{{ $t('home.visitSource') }}</h3>
         </div>
         <div class="chart-wrapper">
           <PieChart />
@@ -116,9 +116,9 @@
         <div class="section-header">
           <h3 class="section-title">
             <el-icon class="title-icon"><Bell /></el-icon>
-            通知公告
+            {{ $t('home.notices') }}
           </h3>
-          <el-link type="primary" :underline="false">更多</el-link>
+          <el-link type="primary" :underline="false">{{ $t('home.more') }}</el-link>
         </div>
         <ul class="notice-list">
           <li
@@ -131,9 +131,9 @@
               size="small"
               effect="light"
               class="notice-tag"
-              >{{ item.tag }}</el-tag
+              >{{ $t(item.tagKey) }}</el-tag
             >
-            <span class="notice-title">{{ item.title }}</span>
+            <span class="notice-title">{{ $t(item.titleKey) }}</span>
             <span class="notice-date">{{ item.date }}</span>
           </li>
         </ul>
@@ -144,18 +144,18 @@
         <div class="section-header">
           <h3 class="section-title">
             <el-icon class="title-icon"><List /></el-icon>
-            待办事项
+            {{ $t('home.todos') }}
           </h3>
-          <el-link type="primary" :underline="false">全部</el-link>
+          <el-link type="primary" :underline="false">{{ $t('home.all') }}</el-link>
         </div>
         <ul class="todo-list">
           <li v-for="(item, index) in todoList" :key="index" class="todo-item">
             <el-checkbox v-model="item.done" />
             <span class="todo-text" :class="{ done: item.done }">{{
-              item.text
+              $t(item.textKey)
             }}</span>
             <span class="todo-priority" :class="item.priority">{{
-              item.priorityText
+              $t(item.priorityKey)
             }}</span>
           </li>
         </ul>
@@ -166,16 +166,16 @@
         <div class="section-header">
           <h3 class="section-title">
             <el-icon class="title-icon"><Trophy /></el-icon>
-            热门排行
+            {{ $t('home.rank') }}
           </h3>
-          <el-link type="primary" :underline="false">更多</el-link>
+          <el-link type="primary" :underline="false">{{ $t('home.more') }}</el-link>
         </div>
         <ul class="rank-list">
           <li v-for="(item, index) in rankList" :key="index" class="rank-item">
             <span class="rank-num" :class="{ top: index < 3 }">{{
               index + 1
             }}</span>
-            <span class="rank-name">{{ item.name }}</span>
+            <span class="rank-name">{{ $t(item.nameKey) }}</span>
             <span class="rank-value">{{ item.value }}</span>
           </li>
         </ul>
@@ -215,6 +215,9 @@ import {
   type DashboardStats,
 } from "@/api/websocket";
 import { useWebSocket } from "@/hooks";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const router = useRouter();
 
@@ -222,22 +225,26 @@ const richTextContent = ref(
   "<p>欢迎使用 <strong>通用富文本组件</strong>，支持 <em>加粗</em>、<u>下划线</u>、列表和链接等基础编辑能力。</p>",
 );
 
-// 问候语
+// 问候语（随语言切换自动更新）
 const greeting = computed(() => {
   const hour = new Date().getHours();
-  if (hour < 6) return "凌晨好";
-  if (hour < 9) return "早上好";
-  if (hour < 12) return "上午好";
-  if (hour < 14) return "中午好";
-  if (hour < 18) return "下午好";
-  return "晚上好";
+  if (hour < 6) return t("home.greetingDawn");
+  if (hour < 9) return t("home.greetingMorning");
+  if (hour < 12) return t("home.greetingForenoon");
+  if (hour < 14) return t("home.greetingNoon");
+  if (hour < 18) return t("home.greetingAfternoon");
+  return t("home.greetingEvening");
 });
 
 // 当前日期
 const currentDate = computed(() => {
   const now = new Date();
-  const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
-  return `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${weekDays[now.getDay()]}`;
+  return t("home.dateFormat", {
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+    day: now.getDate(),
+    week: t(`home.weekDay${now.getDay()}`),
+  });
 });
 
 const formatNumber = (value: number) =>
@@ -250,15 +257,12 @@ const dashboardStats = reactive<DashboardStats>({
   totalSales: 98560,
 });
 
-const socketStatus = ref("离线");
-
 const { status, send } = useWebSocket({
   url: DASHBOARD_WS_URL,
   autoConnect: true,
   reconnect: true,
   reconnectInterval: 15000,
   onOpen: () => {
-    socketStatus.value = "实时";
     send(buildDashboardSubscribeMessage());
   },
   onMessage: (event) => {
@@ -266,13 +270,6 @@ const { status, send } = useWebSocket({
     if (!nextStats) return;
 
     Object.assign(dashboardStats, nextStats);
-    socketStatus.value = "实时";
-  },
-  onClose: () => {
-    socketStatus.value = "离线";
-  },
-  onError: () => {
-    socketStatus.value = "离线";
   },
 });
 
@@ -285,14 +282,14 @@ const totalSalesLabel = computed(
   () => `¥${formatNumber(dashboardStats.totalSales)}`,
 );
 const socketStatusText = computed(() =>
-  status.value === "open" ? "实时" : socketStatus.value,
+  status.value === "open" ? t("home.statusLive") : t("home.statusOffline"),
 );
 
 // 统计卡片数据
 const statList = computed(() => [
   {
     icon: markRaw(User),
-    label: "总用户数",
+    label: t("home.statTotalUsers"),
     value: totalUsersLabel.value,
     liveText: socketStatusText.value,
     trend: 12.5,
@@ -300,7 +297,7 @@ const statList = computed(() => [
   },
   {
     icon: markRaw(View),
-    label: "今日访问",
+    label: t("home.statTodayVisitors"),
     value: todayVisitorsLabel.value,
     liveText: socketStatusText.value,
     trend: 8.3,
@@ -308,7 +305,7 @@ const statList = computed(() => [
   },
   {
     icon: markRaw(ShoppingCart),
-    label: "订单总数",
+    label: t("home.statOrderTotal"),
     value: orderTotalLabel.value,
     liveText: socketStatusText.value,
     trend: -3.2,
@@ -316,7 +313,7 @@ const statList = computed(() => [
   },
   {
     icon: markRaw(Money),
-    label: "销售额",
+    label: t("home.statSales"),
     value: totalSalesLabel.value,
     liveText: socketStatusText.value,
     trend: 15.7,
@@ -324,94 +321,94 @@ const statList = computed(() => [
   },
 ]);
 
-// 快捷入口
-const quickActions = ref([
+// 快捷入口（computed 包裹，切换语言自动更新）
+const quickActions = computed(() => [
   {
-    label: "用户管理",
+    label: t("menu.userList"),
     icon: markRaw(UserFilled),
     bgColor: "#409EFF",
     path: "/userList",
   },
   {
-    label: "订单管理",
+    label: t("menu.orderManage"),
     icon: markRaw(ShoppingCart),
     bgColor: "#67C23A",
     path: "/orderManage",
   },
   {
-    label: "数据分析",
+    label: t("menu.dataAnalysis"),
     icon: markRaw(DataAnalysis),
     bgColor: "#E6A23C",
     path: "/dataAnalysis",
   },
   {
-    label: "消息通知",
+    label: t("menu.messageNotice"),
     icon: markRaw(Message),
     bgColor: "#F56C6C",
     path: "/messageNotice",
   },
   {
-    label: "文档中心",
+    label: t("menu.docCenter"),
     icon: markRaw(Document),
     bgColor: "#909399",
     path: "/docCenter",
   },
   {
-    label: "文件管理",
+    label: t("menu.fileManage"),
     icon: markRaw(Folder),
     bgColor: "#155EE8",
     path: "/fileManage",
   },
   {
-    label: "系统设置",
+    label: t("home.systemSetting"),
     icon: markRaw(Setting),
     bgColor: "#7052F8",
     path: "/userSet",
   },
-  { label: "更多功能", icon: markRaw(Setting), bgColor: "#999999", path: "" },
+  { label: t("home.moreFeatures"), icon: markRaw(Setting), bgColor: "#999999", path: "" },
 ]);
 
 const handleQuickAction = (item: any) => {
   if (item.path) {
     router.push(item.path);
   } else {
-    ElMessage.info(`${item.label} 功能开发中`);
+    ElMessage.info(t("home.devInProgress", { name: item.label }));
   }
 };
 
 // 图表周期
 const chartPeriod = ref("week");
 
-// 通知公告
+// 通知公告（存储 i18n key，模板中 $t 翻译，切换语言自动更新）
 const noticeList = ref([
   {
-    tag: "重要",
+    tagKey: "home.noticeTagImportant",
     type: "danger",
-    title: "系统将于本周六凌晨进行版本升级维护",
+    titleKey: "home.notice1",
     date: "09-12",
   },
   {
-    tag: "通知",
+    tagKey: "home.noticeTagNotice",
     type: "warning",
-    title: "国庆节放假安排通知，请提前做好工作安排",
+    titleKey: "home.notice2",
     date: "09-10",
   },
   {
-    tag: "公告",
+    tagKey: "home.noticeTagAnnouncement",
     type: "primary",
-    title: "新版后台管理系统已上线，欢迎体验",
+    titleKey: "home.notice3",
     date: "09-08",
   },
   {
-    tag: "活动",
+    tagKey: "home.noticeTagActivity",
     type: "success",
-    title: "秋季促销活动开始，多款产品限时优惠",
+    titleKey: "home.notice4",
     date: "09-05",
   },
   {
-    tag: "通知",
+    tagKey: "home.noticeTagNotice",
     type: "warning",
-    title: "请各部门及时提交本月工作总结报告",
+    titleKey: "home.notice5",
     date: "09-03",
   },
 ]);
@@ -419,44 +416,44 @@ const noticeList = ref([
 // 待办事项
 const todoList = ref([
   {
-    text: "审核新用户注册申请",
+    textKey: "home.todo1",
     done: false,
     priority: "high",
-    priorityText: "紧急",
+    priorityKey: "home.priorityHigh",
   },
   {
-    text: "完成季度数据报表",
+    textKey: "home.todo2",
     done: false,
     priority: "medium",
-    priorityText: "重要",
+    priorityKey: "home.priorityMedium",
   },
   {
-    text: "回复客户咨询邮件",
+    textKey: "home.todo3",
     done: true,
     priority: "low",
-    priorityText: "普通",
+    priorityKey: "home.priorityLow",
   },
   {
-    text: "参加下午3点产品评审会",
+    textKey: "home.todo4",
     done: false,
     priority: "high",
-    priorityText: "紧急",
+    priorityKey: "home.priorityHigh",
   },
   {
-    text: "更新系统使用文档",
+    textKey: "home.todo5",
     done: false,
     priority: "low",
-    priorityText: "普通",
+    priorityKey: "home.priorityLow",
   },
 ]);
 
 // 热门排行
 const rankList = ref([
-  { name: "智能手机 Pro Max", value: "1,280" },
-  { name: "无线蓝牙耳机", value: "986" },
-  { name: "智能手表 Series", value: "752" },
-  { name: "轻薄笔记本电脑", value: "645" },
-  { name: "平板电脑 Air", value: "528" },
+  { nameKey: "home.rank1", value: "1,280" },
+  { nameKey: "home.rank2", value: "986" },
+  { nameKey: "home.rank3", value: "752" },
+  { nameKey: "home.rank4", value: "645" },
+  { nameKey: "home.rank5", value: "528" },
 ]);
 
 onMounted(() => {

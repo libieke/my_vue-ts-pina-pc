@@ -4,9 +4,9 @@
       <div class="page-header">
         <div>
           <!-- <p class="eyebrow">消息中心</p> -->
-          <h2>消息通知</h2>
+          <h2>{{ $t('menu.messageNotice') }}</h2>
         </div>
-        <el-button type="primary">全部已读</el-button>
+        <el-button type="primary">{{ $t('message.markAllRead') }}</el-button>
       </div>
 
       <div class="message-list">
@@ -22,7 +22,7 @@
           <div class="message-main">
             <div class="message-top">
               <strong>{{ item.title }}</strong>
-              <span class="badge" v-if="!item.read">新</span>
+              <span class="badge" v-if="!item.read">{{ $t('message.new') }}</span>
             </div>
             <p>{{ item.content }}</p>
             <small>{{ item.time }}</small>
@@ -34,43 +34,47 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { Bell } from "@element-plus/icons-vue";
+import { useI18n } from "vue-i18n";
 
-const notices = [
+const { t } = useI18n();
+
+// 消息列表（computed 包裹，切换语言自动更新）
+const notices = computed(() => [
   {
     id: 1,
-    title: "系统升级通知",
-    content:
-      "平台将于本周六凌晨 02:00 至 04:00 进行系统升级维护，期间部分功能可能暂时不可用。",
+    title: t("message.item1Title"),
+    content: t("message.item1Content"),
     time: "2024-06-06 09:10",
     read: false,
     color: "#409EFF",
   },
   {
     id: 2,
-    title: "审批提醒",
-    content: "你有 3 条待审批工单，预计在 2 小时内完成处理。",
+    title: t("message.item2Title"),
+    content: t("message.item2Content"),
     time: "2024-06-06 08:15",
     read: false,
     color: "#E6A23C",
   },
   {
     id: 3,
-    title: "订单状态更新",
-    content: "订单 OD-20240605 已发货，物流信息已同步更新。",
+    title: t("message.item3Title"),
+    content: t("message.item3Content"),
     time: "2024-06-05 17:27",
     read: true,
     color: "#67C23A",
   },
   {
     id: 4,
-    title: "安全提醒",
-    content: "系统检测到异常登录尝试，请确认当前设备是否为授权设备。",
+    title: t("message.item4Title"),
+    content: t("message.item4Content"),
     time: "2024-06-04 16:40",
     read: true,
     color: "#F56C6C",
   },
-];
+]);
 </script>
 
 <style scoped lang="scss">

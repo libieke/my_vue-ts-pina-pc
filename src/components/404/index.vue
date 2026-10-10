@@ -1,8 +1,8 @@
 <template>
-  <Result status="404" title="404" sub-title="Sorry, the page you visited does not exist.">
+  <Result status="404" title="404" :sub-title="$t('notFound.subTitle')">
     <template #extra>
       <Button type="primary">
-        <RouterLink to="/">返回首页</RouterLink>
+        <RouterLink to="/">{{ $t('notFound.backHome') }}</RouterLink>
       </Button>
     </template>
   </Result>

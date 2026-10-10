@@ -3,14 +3,14 @@
     <div class="login-box">
       <div class="left">
         <div>
-          您好！欢迎进入<br />
-          我的工作台
+          {{ $t('login.welcome') }}<br />
+          {{ $t('login.workspace') }}
         </div>
-        <div class="subtitle">模板</div>
+        <div class="subtitle">{{ $t('login.subtitle') }}</div>
       </div>
       <div class="right">
         <el-card class="box-card">
-          <div class="title">欢迎登陆</div>
+          <div class="title">{{ $t('login.cardTitle') }}</div>
           <div class="login-from">
             <el-form
               auto-complete="new-password"
@@ -23,7 +23,7 @@
                 <el-input
                   prefix-icon="User"
                   v-model="formData.userName"
-                  placeholder="请输入账号"
+                  :placeholder="$t('login.accountPlaceholder')"
                 >
                 </el-input>
               </el-form-item>
@@ -32,7 +32,7 @@
                   type="password"
                   prefix-icon="Lock"
                   v-model="formData.passWord"
-                  placeholder="请输入密码"
+                  :placeholder="$t('login.passwordPlaceholder')"
                 >
                 </el-input>
               </el-form-item>
@@ -59,7 +59,7 @@
                   class="submint-but"
                   type="primary"
                   @click="onSubmit(loginFroms)"
-                  >登录</el-button
+                  >{{ $t('login.submit') }}</el-button
                 >
                 <!-- <el-checkbox v-model="isRemember">记住密码</el-checkbox> -->
               </el-form-item>
@@ -74,6 +74,9 @@
 <script setup lang="ts">
 import { ElNotification, FormRules, FormInstance } from "element-plus";
 import useUserStore from "@/store/home";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 let useStore = useUserStore();
 let $router = useRouter();
@@ -90,13 +93,14 @@ interface RuleForm {
 }
 let loginFroms = ref();
 
-const rules = reactive<FormRules<RuleForm>>({
+// 校验规则使用 computed 包裹，切换语言时提示文案自动更新
+const rules = computed<FormRules<RuleForm>>(() => ({
   userName: [
     {
       required: true,
       min: 4,
       max: 10,
-      message: "用户名长度应为5-10位",
+      message: t("login.accountRule"),
       trigger: "change",
     },
   ],
@@ -105,11 +109,11 @@ const rules = reactive<FormRules<RuleForm>>({
       required: true,
       min: 5,
       max: 10,
-      message: "密码长度应为6-10位",
+      message: t("login.passwordRule"),
       trigger: "change",
     },
   ],
-});
+}));
 
 const onSubmit = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
@@ -126,7 +130,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         // 登陆成功提示
         ElNotification({
           type: "success",
-          message: "登陆成功",
+          message: t("login.success"),
         });
 
         let redirect: any = $route.query.redirect;
@@ -140,7 +144,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         // 登录失败的提示信息
         ElNotification({
           type: "error",
-          message: (error as Error).message || "登录失败，请检查账号密码",
+          message: (error as Error).message || t("login.failed"),
         });
       }
     } else {

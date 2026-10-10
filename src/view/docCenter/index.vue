@@ -4,9 +4,9 @@
       <div class="page-header">
         <div>
           <!-- <p class="eyebrow">知识库</p> -->
-          <h2>文档中心</h2>
+          <h2>{{ $t('menu.docCenter') }}</h2>
         </div>
-        <el-button type="primary">上传文档</el-button>
+        <el-button type="primary">{{ $t('doc.upload') }}</el-button>
       </div>
 
       <div class="doc-grid">
@@ -27,36 +27,42 @@
 </template>
 
 <script setup lang="ts">
-const docs = [
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
+
+// 文档描述走 i18n（文档名作为数据保留）
+const docs = computed(() => [
   {
     name: "后台管理系统说明书.pdf",
-    desc: "包含系统概览、权限说明和功能列表",
+    desc: t("doc.doc1Desc"),
     size: "2.4 MB",
     time: "2024-06-06",
     type: "PDF",
   },
   {
     name: "用户手册.docx",
-    desc: "适用于普通用户的操作说明和常见问题",
+    desc: t("doc.doc2Desc"),
     size: "1.1 MB",
     time: "2024-06-02",
     type: "DOC",
   },
   {
     name: "接口文档.md",
-    desc: "后端接口说明、字段定义及调用示例",
+    desc: t("doc.doc3Desc"),
     size: "0.3 MB",
     time: "2024-06-01",
     type: "MD",
   },
   {
     name: "安全规范.xlsx",
-    desc: "权限管理、日志审计和标准流程汇总",
+    desc: t("doc.doc4Desc"),
     size: "780 KB",
     time: "2024-05-30",
     type: "XLS",
   },
-];
+]);
 </script>
 
 <style scoped lang="scss">

@@ -12,7 +12,7 @@
         <el-input
           v-if="field.type === 'input'"
           v-model="formModel[field.prop]"
-          v-bind="getControlProps(field, '请输入' + (field.label || field.prop))"
+          v-bind="getControlProps(field, 'input')"
           @keyup.enter="handleSearch"
         />
 
@@ -21,7 +21,7 @@
           v-model="formModel[field.prop]"
           type="textarea"
           :rows="3"
-          v-bind="getControlProps(field, '请输入' + (field.label || field.prop))"
+          v-bind="getControlProps(field, 'input')"
         />
 
         <el-input-number
@@ -33,7 +33,7 @@
         <el-select
           v-else-if="field.type === 'select'"
           v-model="formModel[field.prop]"
-          v-bind="getControlProps(field, '请选择' + (field.label || field.prop))"
+          v-bind="getControlProps(field, 'select')"
         >
           <el-option
             v-for="option in field.options || []"
@@ -47,21 +47,21 @@
           v-else-if="field.type === 'date'"
           v-model="formModel[field.prop]"
           type="date"
-          v-bind="getControlProps(field, '请选择' + (field.label || field.prop))"
+          v-bind="getControlProps(field, 'select')"
         />
 
         <el-date-picker
           v-else-if="field.type === 'daterange'"
           v-model="formModel[field.prop]"
           type="daterange"
-          v-bind="getControlProps(field, '请选择' + (field.label || field.prop))"
+          v-bind="getControlProps(field, 'select')"
         />
 
         <el-date-picker
           v-else-if="field.type === 'datetime'"
           v-model="formModel[field.prop]"
           type="datetime"
-          v-bind="getControlProps(field, '请选择' + (field.label || field.prop))"
+          v-bind="getControlProps(field, 'select')"
         />
 
         <el-switch
@@ -81,17 +81,17 @@
         <el-input
           v-else
           v-model="formModel[field.prop]"
-          v-bind="getControlProps(field, '请输入' + (field.label || field.prop))"
+          v-bind="getControlProps(field, 'input')"
           @keyup.enter="handleSearch"
         />
       </el-form-item>
 
       <el-form-item class="search-form-actions" label="">
         <el-button type="primary" :icon="Search" @click="handleSearch">
-          {{ searchText }}
+          {{ searchText || $t('common.query') }}
         </el-button>
         <el-button v-if="showReset" :icon="RefreshLeft" @click="handleReset">
-          {{ resetText }}
+          {{ resetText || $t('common.reset') }}
         </el-button>
         <slot name="actions" :model="formModel" :search="handleSearch" :reset="handleReset" />
       </el-form-item>
@@ -102,6 +102,9 @@
 <script setup lang="ts">
 import { reactive, watch, type PropType } from "vue";
 import { RefreshLeft, Search } from "@element-plus/icons-vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 type SearchFieldType =
   | "input"
@@ -152,11 +155,11 @@ const props = defineProps({
   },
   searchText: {
     type: String,
-    default: "查询",
+    default: "",
   },
   resetText: {
     type: String,
-    default: "重置",
+    default: "",
   },
   showReset: {
     type: Boolean,
@@ -218,7 +221,15 @@ watch(
   { deep: true, immediate: true }
 );
 
-const getControlProps = (field: SearchField, defaultPlaceholder?: string) => {
+const getControlProps = (field: SearchField, placeholderType?: "input" | "select") => {
+  // 占位文案默认值统一走 i18n，切换语言时自动更新
+  const label = field.label || field.prop;
+  const defaultPlaceholder = placeholderType
+    ? t(
+        placeholderType === "input" ? "common.pleaseInput" : "common.pleaseSelect",
+        { label }
+      )
+    : undefined;
   const placeholder = field.placeholder || defaultPlaceholder;
   const baseProps: Record<string, any> = {
     clearable: field.clearable !== false,
@@ -228,9 +239,9 @@ const getControlProps = (field: SearchField, defaultPlaceholder?: string) => {
 
   if (["date", "daterange", "datetime"].includes(field.type || "")) {
     baseProps["value-format"] = props.valueFormat;
-    baseProps.startPlaceholder = "开始日期";
-    baseProps.endPlaceholder = "结束日期";
-    baseProps.rangeSeparator = "至";
+    baseProps.startPlaceholder = t("common.startDate");
+    baseProps.endPlaceholder = t("common.endDate");
+    baseProps.rangeSeparator = t("common.rangeSeparator");
   }
 
   return {

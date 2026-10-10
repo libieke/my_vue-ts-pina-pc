@@ -20,11 +20,11 @@
           @selection-change="handleSelectionChange"
         >
           <template v-slot:actionColumn>
-            <el-table-column label="操作" align="center" width="200">
+            <el-table-column :label="$t('common.operation')" align="center" width="200">
               <template v-slot="{ row }">
-                <span class="pointer" @click="handleEdit(row)">编辑</span>
+                <span class="pointer" @click="handleEdit(row)">{{ $t('user.edit') }}</span>
                 <span class="pointer red mr10" @click="handleDel(row)"
-                  >删除</span
+                  >{{ $t('user.delete') }}</span
                 >
               </template>
             </el-table-column>
@@ -42,25 +42,25 @@
 
     <Dialog
       v-model="dialogVisible"
-      title="编辑用户设置"
+      :title="$t('user.editUserSet')"
       width="520px"
       @confirm="handleDialogConfirm"
       @cancel="handleDialogCancel"
     >
       <el-form :model="editForm" label-width="90px">
-        <el-form-item label="用户：">
+        <el-form-item :label="$t('user.user')">
           <el-input v-model="editForm.nickName" />
         </el-form-item>
-        <el-form-item label="登录账号：">
+        <el-form-item :label="$t('user.account')">
           <el-input v-model="editForm.username" />
         </el-form-item>
-        <el-form-item label="角色：">
+        <el-form-item :label="$t('user.role')">
           <el-select v-model="editForm.type" style="width: 100%">
-            <el-option :value="0" label="管理员" />
-            <el-option :value="1" label="普通用户" />
+            <el-option :value="0" :label="$t('user.roleAdmin')" />
+            <el-option :value="1" :label="$t('user.roleUser')" />
           </el-select>
         </el-form-item>
-        <el-form-item label="所属企业：">
+        <el-form-item :label="$t('user.org')">
           <el-input v-model="editForm.orgName" />
         </el-form-item>
       </el-form>
@@ -75,34 +75,38 @@ import Pagination from "../../components/Pagination/index.vue";
 import Dialog from "../../components/Dialog/index.vue";
 import { mockUserSettingApi } from "@/mock/userData";
 import { debounce } from "lodash";
+import { useI18n } from "vue-i18n";
 
-const searchFields = [
+const { t } = useI18n();
+
+// 筛选字段使用 computed 包裹，切换语言时自动更新
+const searchFields = computed(() => [
   {
     prop: "nickName",
-    label: "用户",
+    label: t("user.user"),
     type: "input",
   },
   {
     prop: "username",
-    label: "登录账号",
+    label: t("user.account"),
     type: "input",
   },
   {
     prop: "type",
-    label: "角色",
+    label: t("user.role"),
     type: "select",
     options: [
-      { label: "全部", value: "" },
-      { label: "管理员", value: 0 },
-      { label: "普通用户", value: 1 },
+      { label: t("user.all"), value: "" },
+      { label: t("user.roleAdmin"), value: 0 },
+      { label: t("user.roleUser"), value: 1 },
     ],
   },
   {
     prop: "orgName",
-    label: "所属企业",
+    label: t("user.org"),
     type: "input",
   },
-];
+]);
 
 const searchForm = ref({
   nickName: "",
@@ -123,29 +127,31 @@ const editForm = ref({
 
 const tableData = reactive({
   data: [],
-  titles: [
-    {
-      title: "用户",
-      prop: "nickName",
-    },
-    {
-      title: "登录账号",
-      prop: "username",
-      isBotton: true,
-    },
-    {
-      title: "角色",
-      prop: "type",
-      formatter: (row) => {
-        return row.type == 0 ? "管理员" : "普通用户";
-      },
-    },
-    {
-      title: "所属企业",
-      prop: "orgName",
-    },
-  ],
 });
+
+// 表头使用 computed 包裹，切换语言时自动更新
+const tableTitles = computed(() => [
+  {
+    title: t("user.user"),
+    prop: "nickName",
+  },
+  {
+    title: t("user.account"),
+    prop: "username",
+    isBotton: true,
+  },
+  {
+    title: t("user.role"),
+    prop: "type",
+    formatter: (row) => {
+      return row.type == 0 ? t("user.roleAdmin") : t("user.roleUser");
+    },
+  },
+  {
+    title: t("user.org"),
+    prop: "orgName",
+  },
+]);
 
 const loadUserSetList = async () => {
   // 这里先使用 mock 数据；后续接真实接口时直接替换为 request() 调用即可
@@ -186,6 +192,7 @@ const filteredTableData = computed(() => {
 
   return {
     ...tableData,
+    titles: tableTitles.value,
     data: filterData,
   };
 });
@@ -200,6 +207,7 @@ const pagedTableData = computed(() => {
 
   return {
     ...tableData,
+    titles: tableTitles.value,
     data: sourceData.slice(start, end),
   };
 });
@@ -231,11 +239,16 @@ const handleEdit = (row) => {
 
 const handleDialogConfirm = () => {
   ElMessageBox.confirm(
-    `确定保存对 “${editForm.value?.nickName || editForm.value?.username || '当前用户'}” 的修改吗？`,
-    "确认保存",
+    t("user.saveConfirmMsg", {
+      name:
+        editForm.value?.nickName ||
+        editForm.value?.username ||
+        t("user.currentUser"),
+    }),
+    t("user.saveConfirmTitle"),
     {
-      confirmButtonText: "确定保存",
-      cancelButtonText: "取消",
+      confirmButtonText: t("user.saveBtn"),
+      cancelButtonText: t("common.cancel"),
       type: "warning",
     },
   )
@@ -246,11 +259,11 @@ const handleDialogConfirm = () => {
       if (index !== -1) {
         tableData.data[index] = { ...editForm.value };
       }
-      ElMessage.success("保存成功");
+      ElMessage.success(t("user.saveSuccess"));
       dialogVisible.value = false;
     })
     .catch(() => {
-      ElMessage.info("已取消保存");
+      ElMessage.info(t("user.saveCancelled"));
     });
 };
 
@@ -259,29 +272,41 @@ const handleDialogCancel = () => {
 };
 
 const handleDel = (row) => {
-  ElMessageBox.confirm(`确定删除用户 “${row?.nickName || row?.username || '当前用户'}” 吗？`, "确认删除", {
-    confirmButtonText: "确定删除",
-    cancelButtonText: "取消",
-    type: "warning",
-  })
+  ElMessageBox.confirm(
+    t("user.deleteConfirmMsg", {
+      name: row?.nickName || row?.username || t("user.currentUser"),
+    }),
+    t("user.deleteConfirmTitle"),
+    {
+      confirmButtonText: t("user.deleteBtn"),
+      cancelButtonText: t("common.cancel"),
+      type: "warning",
+    },
+  )
     .then(() => {
       const index = tableData.data.findIndex((item) => item.username === row.username);
       if (index !== -1) {
         tableData.data.splice(index, 1);
       }
-      ElMessage.success("删除成功");
+      ElMessage.success(t("user.deleteSuccess"));
     })
     .catch(() => {
-      ElMessage.info("已取消删除");
+      ElMessage.info(t("user.deleteCancelled"));
     });
 };
 // 表格内按钮
 const handleReset = (row) => {
-  ElMessageBox.confirm(`确定重置用户 “${row?.nickName || row?.username || '当前用户'}” 的状态吗？`, "确认重置", {
-    confirmButtonText: "确认重置",
-    cancelButtonText: "取消",
-    type: "warning",
-  })
+  ElMessageBox.confirm(
+    t("user.resetConfirmMsg", {
+      name: row?.nickName || row?.username || t("user.currentUser"),
+    }),
+    t("user.resetConfirmTitle"),
+    {
+      confirmButtonText: t("user.resetBtn"),
+      cancelButtonText: t("common.cancel"),
+      type: "warning",
+    },
+  )
     .then(() => {
       const index = tableData.data.findIndex((item) => item.username === row.username);
       if (index !== -1) {
@@ -290,10 +315,10 @@ const handleReset = (row) => {
           type: 1,
         };
       }
-      ElMessage.success("重置成功");
+      ElMessage.success(t("user.resetSuccess"));
     })
     .catch(() => {
-      ElMessage.info("已取消重置");
+      ElMessage.info(t("user.resetCancelled"));
     });
 };
 // 选中项发生改变

@@ -8,7 +8,7 @@
         :class="{ active: isActive(tag.path) }"
         @click="handleClick(tag)"
       >
-        <span class="tag-title">{{ tag.title }}</span>
+        <span class="tag-title">{{ tag.title ? $t(tag.title) : $t('tags.untitled') }}</span>
         <!-- 首页标签固定不可关闭 -->
         <el-icon
           v-if="tag.path !== '/home'"
@@ -25,8 +25,8 @@
       </span>
       <template #dropdown>
         <el-dropdown-menu>
-          <el-dropdown-item command="closeOthers">关闭其他</el-dropdown-item>
-          <el-dropdown-item command="closeAll">关闭所有</el-dropdown-item>
+          <el-dropdown-item command="closeOthers">{{ $t('tags.closeOther') }}</el-dropdown-item>
+          <el-dropdown-item command="closeAll">{{ $t('tags.closeAll') }}</el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>

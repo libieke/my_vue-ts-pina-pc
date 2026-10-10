@@ -4,9 +4,9 @@
       <div class="page-header">
         <div>
           <!-- <p class="eyebrow">资源管理</p> -->
-          <h2>文件管理</h2>
+          <h2>{{ $t('menu.fileManage') }}</h2>
         </div>
-        <el-button type="primary">上传文件</el-button>
+        <el-button type="primary">{{ $t('file.upload') }}</el-button>
       </div>
 
       <div class="file-list">
@@ -19,7 +19,7 @@
             <span>{{ item.path }}</span>
           </div>
           <span class="file-size">{{ item.size }}</span>
-          <el-button size="small" link>下载</el-button>
+          <el-button size="small" link>{{ $t('file.download') }}</el-button>
         </div>
       </div>
     </div>

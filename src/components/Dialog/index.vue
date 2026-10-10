@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="visible"
-    :title="title"
+    :title="title || $t('common.tip')"
     :width="width"
     :top="top"
     :close-on-click-modal="closeOnClickModal"
@@ -27,10 +27,10 @@
       >
         <div class="dialog-footer">
           <el-button v-if="showCancelButton" plain @click="handleCancel">
-            {{ cancelText }}
+            {{ cancelText || $t('common.cancel') }}
           </el-button>
           <el-button type="primary" :loading="confirmLoading" @click="handleConfirm">
-            {{ confirmText }}
+            {{ confirmText || $t('common.confirm') }}
           </el-button>
         </div>
       </slot>
@@ -48,7 +48,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: "提示",
+    default: "",
   },
   width: {
     type: String,
@@ -88,11 +88,11 @@ const props = defineProps({
   },
   confirmText: {
     type: String,
-    default: "确定",
+    default: "",
   },
   cancelText: {
     type: String,
-    default: "取消",
+    default: "",
   },
   showFooter: {
     type: Boolean,

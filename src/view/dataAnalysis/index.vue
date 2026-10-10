@@ -3,9 +3,9 @@
     <div class="page-shell">
       <div class="page-header">
         <div>
-          <h2>数据分析</h2>
+          <h2>{{ $t('menu.dataAnalysis') }}</h2>
         </div>
-        <el-button type="primary">导出报表</el-button>
+        <el-button type="primary">{{ $t('analysis.exportReport') }}</el-button>
       </div>
 
       <div class="stat-grid">
@@ -18,7 +18,7 @@
 
       <div class="panel-row">
         <div class="analysis-card">
-          <h3>增长趋势</h3>
+          <h3>{{ $t('analysis.growthTrend') }}</h3>
           <div class="chart-placeholder">
             <div class="bar-group">
               <span
@@ -32,7 +32,7 @@
         </div>
 
         <div class="analysis-card">
-          <h3>渠道占比</h3>
+          <h3>{{ $t('analysis.channelShare') }}</h3>
           <ul class="channel-list">
             <li v-for="item in channels" :key="item.name">
               <div class="channel-name">
@@ -49,19 +49,25 @@
 </template>
 
 <script setup lang="ts">
-const stats = [
-  { label: "新增用户", value: "2,438", note: "较上周 +18.2%" },
-  { label: "活跃率", value: "68.4%", note: "较昨日 +1.7%" },
-  { label: "转化率", value: "5.3%", note: "较上月 +0.8%" },
-  { label: "GMV", value: "¥246.8K", note: "较上月 +11.9%" },
-];
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
-const channels = [
-  { name: "自然流量", percent: "42%", color: "#409EFF" },
-  { name: "搜索引擎", percent: "24%", color: "#67C23A" },
-  { name: "社媒", percent: "18%", color: "#E6A23C" },
-  { name: "推广渠道", percent: "16%", color: "#F56C6C" },
-];
+const { t } = useI18n();
+
+// 统计卡片与渠道列表（computed 包裹，切换语言自动更新）
+const stats = computed(() => [
+  { label: t("analysis.statNewUsers"), value: "2,438", note: t("analysis.noteUsers") },
+  { label: t("analysis.statActiveRate"), value: "68.4%", note: t("analysis.noteActive") },
+  { label: t("analysis.statConversion"), value: "5.3%", note: t("analysis.noteConversion") },
+  { label: t("analysis.statGmv"), value: "¥246.8K", note: t("analysis.noteGmv") },
+]);
+
+const channels = computed(() => [
+  { name: t("analysis.channelOrganic"), percent: "42%", color: "#409EFF" },
+  { name: t("analysis.channelSearch"), percent: "24%", color: "#67C23A" },
+  { name: t("analysis.channelSocial"), percent: "18%", color: "#E6A23C" },
+  { name: t("analysis.channelPromotion"), percent: "16%", color: "#F56C6C" },
+]);
 </script>
 
 <style scoped lang="scss">

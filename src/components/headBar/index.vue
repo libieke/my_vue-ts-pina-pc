@@ -3,7 +3,7 @@
     <div class="top-box">
       <div class="left">
         <!-- <img src="@/assets/pictrue/loginbg.png" width="100%" height="60" /> -->
-        <span>我的管理平台</span>
+        <span>{{ $t('header.platform') }}</span>
       </div>
       <div class="right">
         <div class="avatar padding-r-10">
@@ -11,9 +11,13 @@
         </div>
         <div class="name padding-r-20">{{ username }}</div>
         <div class="time padding-r-20">{{ nowTime }}</div>
+        <!-- 语言切换 -->
+        <div class="logout padding-r-10" @click="toggleLang">
+          {{ locale === 'zh-CN' ? 'EN' : '中文' }}
+        </div>
         <div class="logout padding-r-10" @click="handleLogout">
           <el-icon style="margin-right: 4px;"><SwitchButton /></el-icon>
-          退出
+          {{ $t('header.logout') }}
         </div>
       </div>
     </div>
@@ -29,6 +33,15 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { SwitchButton } from "@element-plus/icons-vue";
 // 导入头像图片
 import avatarImg from "@/assets/pictrue/avatar.png";
+import { useI18n } from "vue-i18n";
+import { setLocale } from "@/lang";
+
+const { t, locale } = useI18n();
+
+// 中英文切换：写入 i18n 全局状态并持久化到 localStorage
+const toggleLang = () => {
+  setLocale(locale.value === "zh-CN" ? "en" : "zh-CN");
+};
 
 const userStore = useUserStore();
 const $router = useRouter();
@@ -53,11 +66,11 @@ onMounted(() => {
  */
 const handleLogout = () => {
   ElMessageBox.confirm(
-    "确定要退出登录吗？",
-    "退出登录",
+    t("header.logoutConfirm"),
+    t("header.logoutTitle"),
     {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
+      confirmButtonText: t("common.confirm"),
+      cancelButtonText: t("common.cancel"),
       type: "warning",
     }
   )
@@ -67,7 +80,7 @@ const handleLogout = () => {
         // 调用 store 中的退出登录方法，清空所有用户信息
         await userStore.userLogout();
         
-        ElMessage.success("退出登录成功");
+        ElMessage.success(t("header.logoutSuccess"));
         
         // 延迟 500ms 后跳转，让用户看到成功提示
         setTimeout(() => {
@@ -78,13 +91,13 @@ const handleLogout = () => {
           });
         }, 500);
       } catch (error) {
-        ElMessage.error("退出登录失败，请重试");
+        ElMessage.error(t("header.logoutFailed"));
         console.error("退出登录出错:", error);
       }
     })
     .catch(() => {
       // 用户点击取消，不做任何操作
-      ElMessage.info("已取消退出");
+      ElMessage.info(t("header.logoutCancelled"));
     });
 };
 </script>

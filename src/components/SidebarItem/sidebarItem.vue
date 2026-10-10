@@ -4,10 +4,10 @@
     <el-sub-menu :index="item.path" v-if="item.children && item.children.length > 0">
       <template #title v-if="item.meta.icon">
         <el-icon><svg-icon :name="item.meta.icon" :fill="item.meta.iconColor" /></el-icon>
-        <span>{{ item.meta.title }}</span>
+        <span>{{ $t(item.meta.title || '') }}</span>
       </template>
       <!-- 若路由中未定义菜单项icon，则仅展示名称--（我的仅一级菜单有图标） -->
-      <template #title v-else>{{ item.meta.title }}</template>
+      <template #title v-else>{{ $t(item.meta.title || '') }}</template>
       <!-- 递归遍历-自己调用自己（核心代码） -->
       <sidebarItem :routerList="( item.children as CustomRouteRecordRaw[])" />
     </el-sub-menu>
@@ -15,10 +15,10 @@
     <el-menu-item :index="item.path" v-else>
       <template v-if="item.meta.icon">
         <el-icon><svg-icon :name="item.meta.icon" :fill="item.meta.iconColor" /></el-icon>
-        <span>{{ item.meta.title }}</span>
+        <span>{{ $t(item.meta.title || '') }}</span>
       </template>
       <template v-else>
-        {{ item.meta.title }}
+        {{ $t(item.meta.title || '') }}
       </template>
     </el-menu-item>
   </template>
@@ -30,6 +30,7 @@ import { RouteRecordRaw } from "vue-router";
 type CustomRouteRecordRaw = RouteRecordRaw & {
   meta: {
     isShow?: boolean;
+    title?: string;
   };
 };
 const props = defineProps({
