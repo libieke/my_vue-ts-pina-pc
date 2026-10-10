@@ -52,12 +52,12 @@ export default {
     welcome: '您好！欢迎进入',
     workspace: '我的工作台',
     subtitle: '模板',
-    cardTitle: '欢迎登陆',
+    cardTitle: '欢迎登录',
     accountPlaceholder: '请输入账号',
     passwordPlaceholder: '请输入密码',
     accountRule: '用户名长度应为5-10位',
     passwordRule: '密码长度应为6-10位',
-    success: '登陆成功',
+    success: '登录成功',
     failed: '登录失败，请检查账号密码'
   },
   user: {

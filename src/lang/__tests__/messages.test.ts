@@ -66,8 +66,8 @@ describe("语言包内容完整性", () => {
     expect(en.menu.home).toBe("Home");
     const menuKeys = ["home", "userList", "userSet", "orderManage", "dataAnalysis", "messageNotice", "docCenter", "fileManage"];
     for (const k of menuKeys) {
-      expect(zhCN.menu[k]).toBeDefined();
-      expect(en.menu[k]).toBeDefined();
+      expect((zhCN.menu as Record<string, string>)[k]).toBeDefined();
+      expect((en.menu as Record<string, string>)[k]).toBeDefined();
     }
   });
   it("包含 user 用户管理文案组（含 {name} 插值）", () => {

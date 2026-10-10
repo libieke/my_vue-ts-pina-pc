@@ -127,7 +127,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         // 等待登录接口返回结果
         await useStore.userLogin(formData);
 
-        // 登陆成功提示
+        // 登录成功提示
         ElNotification({
           type: "success",
           message: t("login.success"),

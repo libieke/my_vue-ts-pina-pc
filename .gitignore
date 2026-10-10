@@ -25,3 +25,10 @@ dist-ssr
 me-test/
 # TypeScript build info
 *.tsbuildinfo
+
+# decomment backup files
+*.decomment.bak
+.decomment/
+
+# auto-generated
+components.d.ts
