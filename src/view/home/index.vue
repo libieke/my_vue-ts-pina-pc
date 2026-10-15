@@ -17,8 +17,8 @@
     <!-- 数据统计卡片 -->
     <div class="stat-row">
       <div
-        v-for="(item, index) in statList"
-        :key="index"
+        v-for="item in statList"
+        :key="item.label"
         class="stat-card"
         :class="item.bgClass"
       >
@@ -29,16 +29,10 @@
           <div class="stat-value">{{ item.value }}</div>
           <div class="stat-label-row">
             <span class="stat-label">{{ item.label }}</span>
-            <span v-if="index === 0" class="stat-live-tag">
+            <span v-if="item.live" class="stat-live-tag">
               {{ item.liveText }}
             </span>
           </div>
-        </div>
-        <div class="stat-trend" :class="item.trend > 0 ? 'up' : 'down'">
-          <el-icon
-            ><CaretTop v-if="item.trend > 0" /><CaretBottom v-else
-          /></el-icon>
-          <span>{{ Math.abs(item.trend) }}%</span>
         </div>
       </div>
     </div>
@@ -186,13 +180,9 @@
 
 <script setup lang="ts">
 import {
-  User,
-  View,
   ShoppingCart,
   Money,
   Sunny,
-  CaretTop,
-  CaretBottom,
   Bell,
   List,
   Trophy,
@@ -208,13 +198,7 @@ import { useRouter } from "vue-router";
 import ChartBar from "@/components/ChartBar/index.vue";
 import PieChart from "@/components/PieChart/index.vue";
 import RichText from "@/components/RichText/index.vue";
-import {
-  buildDashboardSubscribeMessage,
-  DASHBOARD_WS_URL,
-  parseDashboardMessage,
-  type DashboardStats,
-} from "@/api/websocket";
-import { useWebSocket } from "@/hooks";
+import { useVisitCounter } from "@/hooks";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -250,73 +234,44 @@ const currentDate = computed(() => {
 const formatNumber = (value: number) =>
   new Intl.NumberFormat("en-US").format(value);
 
-const dashboardStats = reactive<DashboardStats>({
-  totalUsers: 12580,
-  todayVisitors: 3842,
-  orderTotal: 1256,
-  totalSales: 98560,
+// 首页访问数：使用独立的访问计数器，从 0 开始实时累加本次访问
+const { count: visitCount, loaded, error } = useVisitCounter();
+
+// 业务数据（订单总数 / 销售额）暂为占位，不蒜子不提供此类指标
+const orderTotal = 1256;
+const totalSales = 98560;
+
+const formatStat = (value: number | null) =>
+  value === null ? "-" : formatNumber(value);
+
+const visitStatusText = computed(() => {
+  if (loaded.value) return t("home.statusLive");
+  return error.value ? t("home.statusOffline") : t("home.statusLoading");
 });
 
-const { status, send } = useWebSocket({
-  url: DASHBOARD_WS_URL,
-  autoConnect: true,
-  reconnect: true,
-  reconnectInterval: 15000,
-  onOpen: () => {
-    send(buildDashboardSubscribeMessage());
-  },
-  onMessage: (event) => {
-    const nextStats = parseDashboardMessage(event.data);
-    if (!nextStats) return;
+const orderTotalLabel = computed(() => formatNumber(orderTotal));
+const totalSalesLabel = computed(() => `¥${formatNumber(totalSales)}`);
 
-    Object.assign(dashboardStats, nextStats);
-  },
-});
-
-const totalUsersLabel = computed(() => formatNumber(dashboardStats.totalUsers));
-const todayVisitorsLabel = computed(() =>
-  formatNumber(dashboardStats.todayVisitors),
-);
-const orderTotalLabel = computed(() => formatNumber(dashboardStats.orderTotal));
-const totalSalesLabel = computed(
-  () => `¥${formatNumber(dashboardStats.totalSales)}`,
-);
-const socketStatusText = computed(() =>
-  status.value === "open" ? t("home.statusLive") : t("home.statusOffline"),
-);
-
-// 统计卡片数据
+// 统计卡片数据（首项为项目访问数，从 0 开始实时累加）
 const statList = computed(() => [
   {
-    icon: markRaw(User),
-    label: t("home.statTotalUsers"),
-    value: totalUsersLabel.value,
-    liveText: socketStatusText.value,
-    trend: 12.5,
-    bgClass: "bg-blue",
-  },
-  {
-    icon: markRaw(View),
-    label: t("home.statTodayVisitors"),
-    value: todayVisitorsLabel.value,
-    liveText: socketStatusText.value,
-    trend: 8.3,
-    bgClass: "bg-green",
+    icon: markRaw(DataAnalysis),
+    label: t("home.statVisits"),
+    value: formatStat(visitCount.value),
+    liveText: visitStatusText.value,
+    live: true,
+    bgClass: "bg-cyan",
   },
   {
     icon: markRaw(ShoppingCart),
     label: t("home.statOrderTotal"),
     value: orderTotalLabel.value,
-    liveText: socketStatusText.value,
-    trend: -3.2,
     bgClass: "bg-orange",
   },
   {
     icon: markRaw(Money),
     label: t("home.statSales"),
     value: totalSalesLabel.value,
-    liveText: socketStatusText.value,
-    trend: 15.7,
     bgClass: "bg-violet",
   },
 ]);
@@ -514,7 +469,7 @@ onMounted(() => {
   /* 统计卡片 */
   .stat-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     margin-bottom: 20px;
 
@@ -579,21 +534,6 @@ onMounted(() => {
         }
       }
 
-      .stat-trend {
-        font-size: 13px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-
-        &.up {
-          color: #00b42a;
-        }
-
-        &.down {
-          color: #f53f3f;
-        }
-      }
-
       &.bg-blue .stat-icon {
         background: linear-gradient(135deg, #409eff, #66b1ff);
       }
@@ -608,6 +548,10 @@ onMounted(() => {
 
       &.bg-violet .stat-icon {
         background: linear-gradient(135deg, #7052f8, #9d7fff);
+      }
+
+      &.bg-cyan .stat-icon {
+        background: linear-gradient(135deg, #17c3ce, #4ad9e0);
       }
     }
   }
