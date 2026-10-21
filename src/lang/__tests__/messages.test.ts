@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import zhCN from "../zh-CN";
 import en from "../en";
 function collectKeys(obj: Record<string, any>, prefix = ""): string[] {

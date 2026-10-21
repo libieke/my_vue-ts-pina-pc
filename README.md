@@ -17,6 +17,7 @@ https://libieke.github.io/my_vue-ts-pina-pc/home
 - [开发指南](#开发指南)
 - [API 集成](#api-集成)
 - [状态管理](#状态管理)
+- [测试（Jest）](#测试jest)
 - [常用命令](#常用命令)
 
 ---
@@ -631,6 +632,67 @@ onMounted(() => {
 
 ---
 
+## 🧪 测试（Jest）
+
+项目已统一使用 **Jest** 作为单元测试与组件测试框架，开箱支持：
+
+- TypeScript 测试文件（`babel-jest` + `@babel/preset-typescript`）
+- Vue 3 单文件组件测试（`@vue/vue3-jest` + `@vue/test-utils`）
+- jsdom 浏览器环境、`@/` 路径别名、样式/图片资源自动 mock
+- 兼容 `unplugin-auto-import` 注入的 Vue / Vue Router 全局 API
+- 覆盖率报告（终端 text + `coverage/lcov`）
+
+### 目录与命名
+
+```text
+src/**/__tests__/*.test.ts      # 单元测试 / 组件测试
+src/**/__tests__/*.spec.ts      # 同上，两种后缀都支持
+test/setup.ts                   # 全局测试环境（jsdom API 兜底）
+test/styleMock.cjs              # 样式文件 mock
+test/fileMock.cjs               # 图片 / SVG mock
+babel.config.cjs                # Babel 配置（TS 转译）
+jest.config.cjs                 # Jest 主配置
+```
+
+### 常用命令
+
+| 命令 | 说明 |
+|------|------|
+| `npm test` | 运行全部 Jest 测试 |
+| `npm run test:watch` | 监听文件变化，增量运行 |
+| `npm run test:coverage` | 运行测试并生成 `coverage/` 覆盖率报告 |
+
+### 编写示例
+
+```ts
+// src/utils/__tests__/token.test.ts
+import { GET_TOKEN, SET_TOKEN } from "../token";
+
+describe("token 工具", () => {
+  it("可以保存 token", () => {
+    SET_TOKEN("abc");
+    expect(GET_TOKEN()).toBe("abc");
+  });
+});
+```
+
+组件测试：
+
+```ts
+import { mount } from "@vue/test-utils";
+import ContentTitle from "../ContentTitle/index.vue";
+
+const wrapper = mount(ContentTitle, {
+  slots: { default: "<p>页面内容</p>" },
+});
+
+expect(wrapper.find(".bg-white").exists()).toBe(true);
+```
+
+> `test/setup.ts` 会把 Vue / Vue Router 的 API 挂到全局，方便直接测试使用 auto-import 的组件。
+
+---
+
 ## 📦 常用命令
 
 | 命令 | 说明 |
@@ -638,6 +700,9 @@ onMounted(() => {
 | `npm run dev` | 启动开发服务器 |
 | `npm run build` | 构建生产版本 |
 | `npm run preview` | 预览生产构建 |
+| `npm test` | 运行 Jest 测试 |
+| `npm run test:watch` | Jest 监听模式 |
+| `npm run test:coverage` | 生成 Jest 覆盖率报告 |
 | `npm install` | 安装依赖 |
 | `npm install <package>` | 安装新包 |
 | `npm uninstall <package>` | 卸载包 |
@@ -658,6 +723,15 @@ Vite 构建配置，包括：
 
 ### package.json
 项目依赖和脚本配置
+
+### jest.config.cjs
+Jest 主配置：jsdom 环境、Vue SFC / TypeScript 转换、`@/` 路径别名、静态资源 mock 与覆盖率。
+
+### babel.config.cjs
+Babel 配置：将 TypeScript 与 ESM 转换为 Jest 可执行的 CommonJS 代码。
+
+### test/setup.ts
+测试环境初始化：补齐 jsdom 缺失的 `matchMedia` / `ResizeObserver` / `IntersectionObserver`，并注入 `unplugin-auto-import` 的全局 API。
 
 ---
 

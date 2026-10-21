@@ -32,3 +32,6 @@ me-test/
 
 # auto-generated
 components.d.ts
+
+# Jest coverage
+coverage/

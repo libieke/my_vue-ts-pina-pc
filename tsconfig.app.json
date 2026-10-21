@@ -10,7 +10,7 @@
       "@/*": ["./src/*"]
     },
     "allowSyntheticDefaultImports": true,
-    "types": ["vite/client"],
+    "types": ["vite/client", "jest"],
     "ignoreDeprecations": "5.0",
 
     /* Bundler mode */

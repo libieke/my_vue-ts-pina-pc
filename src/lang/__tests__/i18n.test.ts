@@ -1,7 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
 beforeEach(() => {
   localStorage.clear();
-  vi.resetModules();
+  jest.resetModules();
 });
 describe("i18n 配置", () => {
   it("messages 导出包含 zh-CN 和 en 两个语言包", async () => {
