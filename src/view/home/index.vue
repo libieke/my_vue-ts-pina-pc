@@ -3,13 +3,17 @@
     <!-- 欢迎横幅 -->
     <div class="welcome-banner">
       <div class="welcome-left">
-        <h2 class="welcome-title">{{ $t('home.welcomeTitle', { greeting }) }}</h2>
-        <p class="welcome-desc">{{ $t('home.todayDesc', { date: currentDate }) }}</p>
+        <h2 class="welcome-title">
+          {{ $t("home.welcomeTitle", { greeting }) }}
+        </h2>
+        <p class="welcome-desc">
+          {{ $t("home.todayDesc", { date: currentDate }) }}
+        </p>
       </div>
       <div class="welcome-right">
         <div class="weather-card">
           <el-icon class="weather-icon"><Sunny /></el-icon>
-          <span class="weather-text">{{ $t('home.weather') }}</span>
+          <span class="weather-text">{{ $t("home.weather") }}</span>
         </div>
       </div>
     </div>
@@ -40,8 +44,10 @@
     <!-- 快捷入口 -->
     <div class="section-card">
       <div class="section-header">
-        <h3 class="section-title">{{ $t('home.quickLinks') }}</h3>
-        <el-link type="primary" :underline="false">{{ $t('home.allApps') }}</el-link>
+        <h3 class="section-title">{{ $t("home.quickLinks") }}</h3>
+        <el-link type="primary" :underline="false">{{
+          $t("home.allApps")
+        }}</el-link>
       </div>
       <div class="quick-actions">
         <div
@@ -63,7 +69,7 @@
     <!-- 富文本示例 -->
     <div class="section-card rich-text-demo">
       <div class="section-header">
-        <h3 class="section-title">{{ $t('home.richTextEditor') }}</h3>
+        <h3 class="section-title">{{ $t("home.richTextEditor") }}</h3>
       </div>
       <RichText
         v-model="richTextContent"
@@ -73,7 +79,7 @@
         :placeholder="$t('home.richTextPlaceholder')"
       />
       <div class="preview-box">
-        <div class="preview-title">{{ $t('home.contentPreview') }}</div>
+        <div class="preview-title">{{ $t("home.contentPreview") }}</div>
         <div v-html="richTextContent" class="preview-content"></div>
       </div>
     </div>
@@ -82,11 +88,17 @@
     <div class="chart-row">
       <div class="section-card chart-card">
         <div class="section-header">
-          <h3 class="section-title">{{ $t('home.salesTrend') }}</h3>
+          <h3 class="section-title">{{ $t("home.salesTrend") }}</h3>
           <el-radio-group v-model="chartPeriod" size="small">
-            <el-radio-button value="week">{{ $t('home.periodWeek') }}</el-radio-button>
-            <el-radio-button value="month">{{ $t('home.periodMonth') }}</el-radio-button>
-            <el-radio-button value="year">{{ $t('home.periodYear') }}</el-radio-button>
+            <el-radio-button value="week">{{
+              $t("home.periodWeek")
+            }}</el-radio-button>
+            <el-radio-button value="month">{{
+              $t("home.periodMonth")
+            }}</el-radio-button>
+            <el-radio-button value="year">{{
+              $t("home.periodYear")
+            }}</el-radio-button>
           </el-radio-group>
         </div>
         <div class="chart-wrapper">
@@ -95,7 +107,7 @@
       </div>
       <div class="section-card chart-card">
         <div class="section-header">
-          <h3 class="section-title">{{ $t('home.visitSource') }}</h3>
+          <h3 class="section-title">{{ $t("home.visitSource") }}</h3>
         </div>
         <div class="chart-wrapper">
           <PieChart />
@@ -110,9 +122,11 @@
         <div class="section-header">
           <h3 class="section-title">
             <el-icon class="title-icon"><Bell /></el-icon>
-            {{ $t('home.notices') }}
+            {{ $t("home.notices") }}
           </h3>
-          <el-link type="primary" :underline="false">{{ $t('home.more') }}</el-link>
+          <el-link type="primary" :underline="false">{{
+            $t("home.more")
+          }}</el-link>
         </div>
         <ul class="notice-list">
           <li
@@ -138,9 +152,11 @@
         <div class="section-header">
           <h3 class="section-title">
             <el-icon class="title-icon"><List /></el-icon>
-            {{ $t('home.todos') }}
+            {{ $t("home.todos") }}
           </h3>
-          <el-link type="primary" :underline="false">{{ $t('home.all') }}</el-link>
+          <el-link type="primary" :underline="false">{{
+            $t("home.all")
+          }}</el-link>
         </div>
         <ul class="todo-list">
           <li v-for="(item, index) in todoList" :key="index" class="todo-item">
@@ -160,9 +176,11 @@
         <div class="section-header">
           <h3 class="section-title">
             <el-icon class="title-icon"><Trophy /></el-icon>
-            {{ $t('home.rank') }}
+            {{ $t("home.rank") }}
           </h3>
-          <el-link type="primary" :underline="false">{{ $t('home.more') }}</el-link>
+          <el-link type="primary" :underline="false">{{
+            $t("home.more")
+          }}</el-link>
         </div>
         <ul class="rank-list">
           <li v-for="(item, index) in rankList" :key="index" class="rank-item">
@@ -320,7 +338,12 @@ const quickActions = computed(() => [
     bgColor: "#7052F8",
     path: "/userSet",
   },
-  { label: t("home.moreFeatures"), icon: markRaw(Setting), bgColor: "#999999", path: "" },
+  {
+    label: t("home.moreFeatures"),
+    icon: markRaw(Setting),
+    bgColor: "#999999",
+    path: "",
+  },
 ]);
 
 const handleQuickAction = (item: any) => {
