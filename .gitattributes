@@ -61,4 +61,6 @@ pnpm-lock.yaml -filter
 yarn.lock -filter
 **/*.min.js -filter
 **/*.min.css -filter
+src/auto-import.d.ts -filter
+components.d.ts -filter
 # <<< decomment <<<

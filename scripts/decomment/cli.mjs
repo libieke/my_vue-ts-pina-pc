@@ -33,6 +33,8 @@ const EXCLUDED_ATTRIBUTES = [
   'yarn.lock',
   '**/*.min.js',
   '**/*.min.css',
+  'src/auto-import.d.ts',
+  'components.d.ts',
 ];
 
 const USAGE = `

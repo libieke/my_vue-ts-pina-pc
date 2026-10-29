@@ -35,7 +35,10 @@
     </div>
 
     <footer>
-      <span>● 蓝紫色渐变代表不同数值</span>
+      <span class="legend">
+        <i class="legend-swatch" :style="{ background: legendGradient }" aria-hidden="true"></i>
+        <span>蓝紫色渐变代表不同数值</span>
+      </span>
       <span>鼠标拖动平移 · 滚轮缩放</span>
     </footer>
   </div>
@@ -57,6 +60,10 @@ const {
 const containerRef = ref<HTMLDivElement | null>(null);
 const zoom = ref("100%");
 const errorMessage = ref("");
+
+const COLOR_LOW = "#20d6ff";
+const COLOR_HIGH = "#7c4dff";
+const legendGradient = `linear-gradient(135deg, ${COLOR_LOW}, ${COLOR_HIGH})`;
 
 let scene: THREE.Scene | null = null;
 let camera: THREE.OrthographicCamera | null = null;
@@ -89,8 +96,8 @@ function renderPoints(list: ScatterPoint[]) {
   const positions = new Float32Array(list.length * 3);
   const colors = new Float32Array(list.length * 3);
 
-  const colorA = new THREE.Color("#20d6ff");
-  const colorB = new THREE.Color("#7c4dff");
+  const colorA = new THREE.Color(COLOR_LOW);
+  const colorB = new THREE.Color(COLOR_HIGH);
   const tmpColor = new THREE.Color();
 
   list.forEach((point, index) => {
@@ -453,6 +460,19 @@ footer {
   color: #91a4bf;
   font-size: 12px;
   border-top: 1px solid #27364b;
+}
+
+.legend {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgb(32 214 255 / 55%);
 }
 
 .error {

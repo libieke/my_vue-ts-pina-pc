@@ -127,7 +127,8 @@ node scripts/decomment/cli.mjs check src/main.ts
 | 其他 | `.sh .bash .zsh .py .sql .go .java .kt .swift .c .h .cpp .cs .rs .dart .scala .php .gradle` |
 
 默认**不处理**：`package-lock.json`、`pnpm-lock.yaml`、`yarn.lock`、`*.min.js`、`*.min.css`，
-以及所有未列出的类型（`.md`、`.env`、图片等）。`.env` 里的 `#` 是配置说明，刻意不处理。
+以及插件自动生成的声明文件（`src/auto-import.d.ts`、`components.d.ts`，它们每次启动/构建都会被重写），
+还有所有未列出的类型（`.md`、`.env`、图片等）。`.env` 里的 `#` 是配置说明，刻意不处理。
 
 ---
 
