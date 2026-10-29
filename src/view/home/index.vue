@@ -1,6 +1,5 @@
 <template>
   <div class="home-container">
-    <!-- 欢迎横幅 -->
     <div class="welcome-banner">
       <div class="welcome-left">
         <h2 class="welcome-title">
@@ -18,7 +17,6 @@
       </div>
     </div>
 
-    <!-- 数据统计卡片 -->
     <div class="stat-row">
       <div
         v-for="item in statList"
@@ -41,7 +39,6 @@
       </div>
     </div>
 
-    <!-- 快捷入口 -->
     <div class="section-card">
       <div class="section-header">
         <h3 class="section-title">{{ $t("home.quickLinks") }}</h3>
@@ -66,7 +63,13 @@
       </div>
     </div>
 
-    <!-- 富文本示例 -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3 class="section-title">{{ $t("home.scatterPlot") }}</h3>
+      </div>
+      <WebGLScatter />
+    </div>
+
     <div class="section-card rich-text-demo">
       <div class="section-header">
         <h3 class="section-title">{{ $t("home.richTextEditor") }}</h3>
@@ -84,7 +87,6 @@
       </div>
     </div>
 
-    <!-- 图表区域 -->
     <div class="chart-row">
       <div class="section-card chart-card">
         <div class="section-header">
@@ -115,9 +117,7 @@
       </div>
     </div>
 
-    <!-- 底部三栏 -->
     <div class="bottom-row">
-      <!-- 通知公告 -->
       <div class="section-card">
         <div class="section-header">
           <h3 class="section-title">
@@ -147,7 +147,6 @@
         </ul>
       </div>
 
-      <!-- 待办事项 -->
       <div class="section-card">
         <div class="section-header">
           <h3 class="section-title">
@@ -171,7 +170,6 @@
         </ul>
       </div>
 
-      <!-- 热门排行 -->
       <div class="section-card">
         <div class="section-header">
           <h3 class="section-title">
@@ -213,9 +211,6 @@ import {
 } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
-import ChartBar from "@/components/ChartBar/index.vue";
-import PieChart from "@/components/PieChart/index.vue";
-import RichText from "@/components/RichText/index.vue";
 import { useVisitCounter } from "@/hooks";
 import { useI18n } from "vue-i18n";
 
@@ -227,7 +222,6 @@ const richTextContent = ref(
   "<p>欢迎使用 <strong>通用富文本组件</strong>，支持 <em>加粗</em>、<u>下划线</u>、列表和链接等基础编辑能力。</p>",
 );
 
-// 问候语（随语言切换自动更新）
 const greeting = computed(() => {
   const hour = new Date().getHours();
   if (hour < 6) return t("home.greetingDawn");
@@ -238,7 +232,6 @@ const greeting = computed(() => {
   return t("home.greetingEvening");
 });
 
-// 当前日期
 const currentDate = computed(() => {
   const now = new Date();
   return t("home.dateFormat", {
@@ -252,10 +245,8 @@ const currentDate = computed(() => {
 const formatNumber = (value: number) =>
   new Intl.NumberFormat("en-US").format(value);
 
-// 首页访问数：使用独立的访问计数器，从 0 开始实时累加本次访问
 const { count: visitCount, loaded, error } = useVisitCounter();
 
-// 业务数据（订单总数 / 销售额）暂为占位，不蒜子不提供此类指标
 const orderTotal = 1256;
 const totalSales = 98560;
 
@@ -270,7 +261,6 @@ const visitStatusText = computed(() => {
 const orderTotalLabel = computed(() => formatNumber(orderTotal));
 const totalSalesLabel = computed(() => `¥${formatNumber(totalSales)}`);
 
-// 统计卡片数据（首项为项目访问数，从 0 开始实时累加）
 const statList = computed(() => [
   {
     icon: markRaw(DataAnalysis),
@@ -294,7 +284,6 @@ const statList = computed(() => [
   },
 ]);
 
-// 快捷入口（computed 包裹，切换语言自动更新）
 const quickActions = computed(() => [
   {
     label: t("menu.userList"),
@@ -354,10 +343,8 @@ const handleQuickAction = (item: any) => {
   }
 };
 
-// 图表周期
 const chartPeriod = ref("week");
 
-// 通知公告（存储 i18n key，模板中 $t 翻译，切换语言自动更新）
 const noticeList = ref([
   {
     tagKey: "home.noticeTagImportant",
@@ -391,7 +378,6 @@ const noticeList = ref([
   },
 ]);
 
-// 待办事项
 const todoList = ref([
   {
     textKey: "home.todo1",
@@ -425,7 +411,6 @@ const todoList = ref([
   },
 ]);
 
-// 热门排行
 const rankList = ref([
   { nameKey: "home.rank1", value: "1,280" },
   { nameKey: "home.rank2", value: "986" },
@@ -435,7 +420,6 @@ const rankList = ref([
 ]);
 
 onMounted(() => {
-  // 预留接口调用位置
 });
 </script>
 
@@ -445,7 +429,6 @@ onMounted(() => {
   background: #f0f2f5;
   min-height: calc(100vh - 90px);
 
-  /* 欢迎横幅 */
   .welcome-banner {
     display: flex;
     justify-content: space-between;
@@ -489,7 +472,6 @@ onMounted(() => {
     }
   }
 
-  /* 统计卡片 */
   .stat-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -579,7 +561,6 @@ onMounted(() => {
     }
   }
 
-  /* 通用区块卡片 */
   .section-card {
     background: #fff;
     border-radius: 12px;
@@ -609,7 +590,6 @@ onMounted(() => {
     }
   }
 
-  /* 快捷入口 */
   .quick-actions {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
@@ -650,7 +630,6 @@ onMounted(() => {
     }
   }
 
-  /* 富文本示例 */
   .rich-text-demo {
     margin-bottom: 20px;
 
@@ -687,7 +666,6 @@ onMounted(() => {
     }
   }
 
-  /* 图表区域 */
   .chart-row {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -703,7 +681,6 @@ onMounted(() => {
     }
   }
 
-  /* 底部三栏 */
   .bottom-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -711,7 +688,6 @@ onMounted(() => {
     padding-bottom: 20px;
   }
 
-  /* 通知公告 */
   .notice-list {
     list-style: none;
     padding: 0;
@@ -755,7 +731,6 @@ onMounted(() => {
     }
   }
 
-  /* 待办事项 */
   .todo-list {
     list-style: none;
     padding: 0;
@@ -807,7 +782,6 @@ onMounted(() => {
     }
   }
 
-  /* 热门排行 */
   .rank-list {
     list-style: none;
     padding: 0;
@@ -862,7 +836,6 @@ onMounted(() => {
   }
 }
 
-/* 响应式适配 */
 @media screen and (max-width: 1400px) {
   .home-container {
     .quick-actions {

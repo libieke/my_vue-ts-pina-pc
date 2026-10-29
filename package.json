@@ -10,7 +10,15 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "prepare": "husky"
+    "prepare": "husky && node scripts/decomment/cli.mjs install --quiet",
+    "decomment:install": "node scripts/decomment/cli.mjs install",
+    "decomment:status": "node scripts/decomment/cli.mjs status",
+    "decomment:check": "node scripts/decomment/cli.mjs check",
+    "decomment:check:staged": "node scripts/decomment/cli.mjs check --staged",
+    "decomment:strip": "node scripts/decomment/cli.mjs strip --backup",
+    "decomment:restore": "node scripts/decomment/cli.mjs restore",
+    "decomment:preview": "node scripts/decomment/cli.mjs preview",
+    "decomment:test": "node --test \"scripts/decomment/test/*.test.mjs\""
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
@@ -26,26 +34,28 @@
     "pinia": "^2.2.2",
     "postcss-nesting": "^13.0.0",
     "quill": "^2.0.3",
+    "three": "^0.186.1",
     "vue": "^3.4.37",
     "vue-i18n": "^9.14.5",
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
+    "@babel/parser": "^7.29.9",
     "@babel/preset-env": "^7.29.7",
     "@babel/preset-typescript": "^7.29.7",
-    "@tomatobybike/decomment": "^0.1.6",
     "@types/jest": "^29.5.14",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.6.1",
+    "@types/three": "^0.186.0",
     "@vitejs/plugin-vue": "^5.1.2",
+    "@vue/compiler-sfc": "^3.5.8",
     "@vue/test-utils": "^2.5.1",
     "@vue/vue3-jest": "^29.2.6",
     "babel-jest": "^29.7.0",
     "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "lint-staged": "^16.4.0",
     "sass": "^1.78.0",
     "typescript": "^5.5.3",
     "unplugin-auto-import": "^0.18.3",
@@ -53,11 +63,5 @@
     "vite": "^5.4.1",
     "vite-plugin-svg-icons": "^2.0.1",
     "vue-tsc": "^2.0.29"
-  },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "decomment --keep eslint-,@license,@preserve",
-      "git add"
-    ]
   }
 }

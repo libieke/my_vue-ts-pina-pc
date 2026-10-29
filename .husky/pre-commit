@@ -1,1 +1,1 @@
-npx lint-staged
+node scripts/decomment/cli.mjs check --staged

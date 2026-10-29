@@ -19,6 +19,7 @@ https://libieke.github.io/my_vue-ts-pina-pc/home
 - [状态管理](#状态管理)
 - [测试（Jest）](#测试jest)
 - [常用命令](#常用命令)
+- [提交时自动抽离注释](#提交时自动抽离注释)
 
 ---
 
@@ -706,6 +707,36 @@ expect(wrapper.find(".bg-white").exists()).toBe(true);
 | `npm install` | 安装依赖 |
 | `npm install <package>` | 安装新包 |
 | `npm uninstall <package>` | 卸载包 |
+
+---
+
+## 🧹 提交时自动抽离注释
+
+项目内置了一套通用的注释抽离方案：**推送到 GitHub 的代码没有注释，本地开发时注释保持不变。**
+
+原理是 git 的 clean filter：`git add` 时把工作区内容转换成无注释版本写入仓库，工作区文件不会被改写。
+支持 Vue、TS/JS/JSX、CSS/SCSS/Less、HTML、JSON、YAML、Shell、Python、SQL 等常见类型，
+并自动保留 `@license`、`eslint-disable`、`@ts-ignore`、`prettier-ignore` 等指令注释。
+
+```bash
+# 安装过滤器（npm install 时已自动执行；也可手动执行）
+npm run decomment:install
+
+# 让已跟踪的历史文件也按新规则入库（只需一次）
+git add --renormalize .
+git commit -m "chore: 仓库内容移除注释"
+```
+
+| 命令 | 说明 |
+|------|------|
+| `npm run decomment:install` | 安装/刷新 git 过滤器与 `.gitattributes` 规则 |
+| `npm run decomment:status` | 查看当前配置 |
+| `npm run decomment:check` | 校验仓库内容中是否还有注释（CI / pre-commit 用） |
+| `npm run decomment:strip` | 就地删除注释（带 `.decomment.bak` 备份） |
+| `npm run decomment:restore` | 还原 `strip` 的改动 |
+| `npm run decomment:preview -- src/main.ts` | 预览单个文件的结果 |
+
+配置见根目录 `decomment.config.json`，完整说明见 [scripts/decomment/README.md](scripts/decomment/README.md)。
 
 ---
 
