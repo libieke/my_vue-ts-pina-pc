@@ -1,3 +1,7 @@
+import type { MockApiResponse } from './types'
+
+export type { MockApiResponse } from './types'
+
 export interface UserRecord {
   nickName: string
   username: string
@@ -7,12 +11,6 @@ export interface UserRecord {
   status?: string
   department?: string
   createTime?: string
-}
-
-export interface MockApiResponse<T> {
-  code: number
-  msg: string
-  data: T[]
 }
 
 export const USER_LIST_MOCK: UserRecord[] = [
@@ -181,7 +179,7 @@ export const USER_SET_MOCK: UserRecord[] = [
   },
 ]
 
-export const mockUserListApi = async (): Promise<MockApiResponse<UserRecord>> => {
+export const mockUserListApi = async (): Promise<MockApiResponse<UserRecord[]>> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -193,7 +191,7 @@ export const mockUserListApi = async (): Promise<MockApiResponse<UserRecord>> =>
   })
 }
 
-export const mockUserSettingApi = async (): Promise<MockApiResponse<UserRecord>> => {
+export const mockUserSettingApi = async (): Promise<MockApiResponse<UserRecord[]>> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -205,6 +203,3 @@ export const mockUserSettingApi = async (): Promise<MockApiResponse<UserRecord>>
   })
 }
 
-// 后续接真实接口时，直接替换下面这两个函数即可：
-// export const fetchUserList = async () => request({ url: '/user/list', method: 'get' })
-// export const fetchUserSettingList = async () => request({ url: '/user/settings', method: 'get' })

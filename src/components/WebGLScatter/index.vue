@@ -15,14 +15,23 @@
           <span>缩放比例</span>
           <strong>{{ zoom }}</strong>
         </div>
+        <button class="ghost" :disabled="loading" @click="reload">
+          {{ loading ? "加载中…" : "刷新数据" }}
+        </button>
         <button @click="resetView">重置视图</button>
       </div>
     </header>
 
-    <div ref="containerRef" class="scatter-container"></div>
+    <div class="scatter-stage">
+      <div ref="containerRef" class="scatter-container"></div>
+      <div v-if="loading" class="scatter-mask">
+        <span class="spinner"></span>
+        <span>正在获取散点数据…</span>
+      </div>
+    </div>
 
-    <div v-if="errorMessage" class="error">
-      {{ errorMessage }}
+    <div v-if="loadError || errorMessage" class="error">
+      {{ loadError || errorMessage }}
     </div>
 
     <footer>
@@ -33,26 +42,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
 import * as THREE from "three";
+import { useScatterData } from "@/hooks";
+import type { ScatterPoint } from "@/mock/scatterData";
 
-interface ScatterPoint {
-  x: number;
-  y: number;
-  value: number;
-}
+const {
+  data,
+  loading,
+  error: loadError,
+  pointCount,
+  reload,
+} = useScatterData({ count: 5000 });
 
 const containerRef = ref<HTMLDivElement | null>(null);
-const pointCount = ref(5000);
 const zoom = ref("100%");
 const errorMessage = ref("");
 
-let scene: THREE.Scene;
-let camera: THREE.OrthographicCamera;
-let renderer: THREE.WebGLRenderer;
-let points: THREE.Points;
-let geometry: THREE.BufferGeometry;
-let material: THREE.ShaderMaterial;
+let scene: THREE.Scene | null = null;
+let camera: THREE.OrthographicCamera | null = null;
+let renderer: THREE.WebGLRenderer | null = null;
+let points: THREE.Points | null = null;
 let animationId = 0;
 let resizeObserver: ResizeObserver | null = null;
 
@@ -65,48 +74,26 @@ const MIN_SCALE = 0.2;
 const MAX_SCALE = 10;
 
 
-function generateData(count: number): ScatterPoint[] {
-  const data: ScatterPoint[] = [];
-  const devices = 5;
-  const pointsPerDevice = Math.floor(count / devices);
+function renderPoints(list: ScatterPoint[]) {
+  if (!scene) return;
 
-  for (let d = 0; d < devices; d++) {
-    const baseY = (d - devices / 2) * 200;
-    const baseValue = 0.5 + d * 0.08;
-
-    for (let i = 0; i < pointsPerDevice; i++) {
-      const x = (i / pointsPerDevice) * 1800 - 900;
-
-      const cycle = Math.sin(x * 0.005 + d) * 80;
-      const noise = (Math.random() - 0.5) * 40;
-
-      const isSpike = Math.random() < 0.02;
-      const spike = isSpike ? (Math.random() > 0.5 ? 200 : -200) : 0;
-
-      const y = baseY + cycle + noise + spike;
-
-      let value = baseValue + (Math.random() - 0.5) * 0.2;
-      if (isSpike) value = Math.random() * 0.3;
-
-      data.push({
-        x,
-        y,
-        value: Math.max(0, Math.min(1, value)),
-      });
-    }
+  if (points) {
+    scene.remove(points);
+    points.geometry.dispose();
+    (points.material as THREE.Material).dispose();
+    points = null;
   }
-  return data;
-}
 
-function createPoints(data: ScatterPoint[]) {
-  const positions = new Float32Array(data.length * 3);
-  const colors = new Float32Array(data.length * 3);
+  if (list.length === 0) return;
+
+  const positions = new Float32Array(list.length * 3);
+  const colors = new Float32Array(list.length * 3);
 
   const colorA = new THREE.Color("#20d6ff");
   const colorB = new THREE.Color("#7c4dff");
   const tmpColor = new THREE.Color();
 
-  data.forEach((point, index) => {
+  list.forEach((point, index) => {
     const offset = index * 3;
 
     positions[offset] = point.x;
@@ -120,13 +107,13 @@ function createPoints(data: ScatterPoint[]) {
     colors[offset + 2] = tmpColor.b;
   });
 
-  geometry = new THREE.BufferGeometry();
+  const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
   const pointSize = 3.5 * Math.min(window.devicePixelRatio, 2);
 
-  material = new THREE.ShaderMaterial({
+  const material = new THREE.ShaderMaterial({
     uniforms: {
       uSize: { value: pointSize },
     },
@@ -168,7 +155,6 @@ function createPoints(data: ScatterPoint[]) {
 
   points = new THREE.Points(geometry, material);
   scene.add(points);
-  pointCount.value = data.length;
 }
 
 
@@ -197,11 +183,11 @@ function onPointerDown(event: PointerEvent) {
   lastX = event.clientX;
   lastY = event.clientY;
 
-  renderer.domElement.setPointerCapture(event.pointerId);
+  renderer?.domElement.setPointerCapture(event.pointerId);
 }
 
 function onPointerMove(event: PointerEvent) {
-  if (!isDragging) return;
+  if (!isDragging || !camera) return;
 
   const dx = event.clientX - lastX;
   const dy = event.clientY - lastY;
@@ -224,6 +210,7 @@ function onPointerUp(event?: PointerEvent) {
 
 function onWheel(event: WheelEvent) {
   event.preventDefault();
+  if (!camera) return;
 
   const factor = event.deltaY < 0 ? 1.1 : 1 / 1.1;
 
@@ -236,6 +223,8 @@ function onWheel(event: WheelEvent) {
 }
 
 function resetView() {
+  if (!camera) return;
+
   scale = 1;
   camera.zoom = 1;
   camera.position.set(0, 0, 1000);
@@ -245,9 +234,14 @@ function resetView() {
 
 function animate() {
   animationId = requestAnimationFrame(animate);
+  if (!renderer || !scene || !camera) return;
   renderer.render(scene, camera);
 }
 
+
+watch(data, (list) => {
+  renderPoints(list);
+});
 
 onMounted(() => {
   const el = containerRef.value;
@@ -283,8 +277,7 @@ onMounted(() => {
 
     el.appendChild(renderer.domElement);
 
-    const data = generateData(5000);
-    createPoints(data);
+    renderPoints(data.value);
 
     const canvas = renderer.domElement;
     canvas.addEventListener("pointerdown", onPointerDown);
@@ -316,9 +309,12 @@ onBeforeUnmount(() => {
     canvas.removeEventListener("pointercancel", onPointerUp);
     canvas.removeEventListener("wheel", onWheel);
 
-    scene?.remove(points);
-    geometry?.dispose();
-    material?.dispose();
+    if (points) {
+      scene?.remove(points);
+      points.geometry.dispose();
+      (points.material as THREE.Material).dispose();
+      points = null;
+    }
     renderer.dispose();
 
     canvas.remove();
@@ -385,6 +381,49 @@ button {
   background: #2563eb;
   border: none;
   border-radius: 6px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+button.ghost {
+  color: #cfe0f5;
+  background: transparent;
+  border: 1px solid #3b4d69;
+}
+
+.scatter-stage {
+  position: relative;
+}
+
+.scatter-mask {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #cfe0f5;
+  background: rgb(11 18 32 / 65%);
+  backdrop-filter: blur(2px);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgb(207 224 245 / 30%);
+  border-top-color: #20d6ff;
+  border-radius: 50%;
+  animation: scatter-spin 0.8s linear infinite;
+}
+
+@keyframes scatter-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .scatter-container {
