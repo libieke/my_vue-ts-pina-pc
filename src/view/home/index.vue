@@ -65,7 +65,9 @@
 
     <div class="section-card">
       <div class="section-header">
-        <h3 class="section-title">{{ $t("home.scatterPlot") }}</h3>
+        <h3 class="section-title">
+          渠道销售量分布{{ $t("home.scatterPlot") }}
+        </h3>
       </div>
       <WebGLScatter />
     </div>

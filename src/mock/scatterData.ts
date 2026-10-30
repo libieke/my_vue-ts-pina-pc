@@ -5,20 +5,33 @@ export interface ScatterPoint {
   x: number
   y: number
   value: number
-  device: string
+  channel: string
 }
 
 export interface ScatterQueryParams {
   count?: number
-  devices?: number
+  channels?: number
   seed?: number
   delay?: number
 }
 
 export const DEFAULT_SCATTER_COUNT = 5000
-export const DEFAULT_SCATTER_DEVICES = 5
+export const DEFAULT_SCATTER_CHANNELS = 5
 
-export const SCATTER_DEVICE_NAMES = ['一号产线', '二号产线', '三号产线', '四号产线', '五号产线']
+export interface SalesChannelProfile {
+  name: string
+  volume: [number, number]
+  price: [number, number]
+  margin: [number, number]
+}
+
+export const SCATTER_CHANNELS: SalesChannelProfile[] = [
+  { name: '分销代理', volume: [1300, 1700], price: [30, 210], margin: [0.08, 0.16] },
+  { name: '线上商城', volume: [1000, 1400], price: [200, 400], margin: [0.18, 0.27] },
+  { name: '社交电商', volume: [700, 1100], price: [60, 260], margin: [0.26, 0.35] },
+  { name: '直营门店', volume: [500, 900], price: [300, 500], margin: [0.4, 0.52] },
+  { name: '跨境电商', volume: [250, 650], price: [420, 600], margin: [0.33, 0.45] },
+]
 
 function createRandom(seed: number) {
   let state = seed >>> 0
@@ -37,37 +50,37 @@ const toPositiveInt = (value: number | undefined, fallback: number) => {
   return Math.max(1, Math.floor(value as number))
 }
 
+const sampleRange = ([min, max]: [number, number], random: () => number) => {
+  const ratio = (random() + random()) / 2
+  return min + (max - min) * ratio
+}
+
 export function createScatterPoints(params: ScatterQueryParams = {}): ScatterPoint[] {
   const count = toPositiveInt(params.count, DEFAULT_SCATTER_COUNT)
-  const devices = toPositiveInt(params.devices, DEFAULT_SCATTER_DEVICES)
+  const requestedChannels = toPositiveInt(params.channels, DEFAULT_SCATTER_CHANNELS)
+  const profiles = SCATTER_CHANNELS.slice(0, Math.min(requestedChannels, SCATTER_CHANNELS.length))
   const random = createRandom(params.seed ?? Date.now())
 
   const points: ScatterPoint[] = []
-  const baseCount = Math.floor(count / devices)
-  const remainder = count - baseCount * devices
+  const baseCount = Math.floor(count / profiles.length)
+  const remainder = count - baseCount * profiles.length
 
-  for (let d = 0; d < devices; d += 1) {
-    const deviceCount = baseCount + (d < remainder ? 1 : 0)
-    const device = SCATTER_DEVICE_NAMES[d % SCATTER_DEVICE_NAMES.length]
+  profiles.forEach((profile, index) => {
+    const channelPoints = baseCount + (index < remainder ? 1 : 0)
 
-    const baseY = (d - devices / 2) * 200
-    const baseValue = 0.5 + d * 0.08
+    for (let i = 0; i < channelPoints; i += 1) {
+      const volume = sampleRange(profile.volume, random)
+      const price = sampleRange(profile.price, random)
+      const margin = sampleRange(profile.margin, random)
 
-    for (let i = 0; i < deviceCount; i += 1) {
-      const x = deviceCount === 1 ? 0 : (i / (deviceCount - 1)) * 1800 - 900
-
-      const cycle = Math.sin(x * 0.005 + d) * 80
-      const noise = (random() - 0.5) * 40
-      const isSpike = random() < 0.02
-      const spike = isSpike ? (random() > 0.5 ? 200 : -200) : 0
-      const y = baseY + cycle + noise + spike
-
-      let value = baseValue + (random() - 0.5) * 0.2
-      if (isSpike) value = random() * 0.3
-
-      points.push({ x, y, value: clamp01(value), device })
+      points.push({
+        x: Math.round(volume),
+        y: Math.round(price),
+        value: clamp01(Number(margin.toFixed(3))),
+        channel: profile.name,
+      })
     }
-  }
+  })
 
   return points
 }
@@ -79,7 +92,7 @@ export const mockScatterDataApi = async (
 
   return {
     code: 200,
-    msg: '获取散点图数据成功',
+    msg: '获取渠道销售散点数据成功',
     data: createScatterPoints(params),
   }
 }

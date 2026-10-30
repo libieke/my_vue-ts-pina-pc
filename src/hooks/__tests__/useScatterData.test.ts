@@ -11,7 +11,7 @@ const makePoints = (count: number): ScatterPoint[] =>
     x: index,
     y: index * 2,
     value: 0.5,
-    device: '一号产线',
+    channel: '线上商城',
   }))
 
 const ok = (points: ScatterPoint[]): MockApiResponse<ScatterPoint[]> => ({

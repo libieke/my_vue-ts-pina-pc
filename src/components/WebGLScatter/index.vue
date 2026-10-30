@@ -3,13 +3,17 @@
     <header class="toolbar">
       <div>
         <h2>WebGL 高性能散点图</h2>
-        <p>GPU 批量渲染 · 支持平移和缩放</p>
+        <p>渠道销售量分布 · GPU 批量渲染</p>
       </div>
 
       <div class="stats">
         <div class="stat">
           <span>数据总量</span>
           <strong>{{ pointCount.toLocaleString() }}</strong>
+        </div>
+        <div class="stat">
+          <span>渠道数</span>
+          <strong>{{ channelCount }}</strong>
         </div>
         <div class="stat">
           <span>缩放比例</span>
@@ -22,8 +26,59 @@
       </div>
     </header>
 
+    <div v-if="channelNames.length" class="channels">
+      <span v-for="name in channelNames" :key="name" class="channel-chip">{{ name }}</span>
+    </div>
+
     <div class="scatter-stage">
       <div ref="containerRef" class="scatter-container"></div>
+
+      <svg v-if="showAxes" class="axis-layer" :width="stageSize.width" :height="stageSize.height">
+        <g class="axis-grid">
+          <line
+            v-for="tick in xTicks"
+            :key="`gx-${tick.value}`"
+            :x1="tick.pos"
+            :x2="tick.pos"
+            y1="0"
+            :y2="stageSize.height"
+          />
+          <line
+            v-for="tick in yTicks"
+            :key="`gy-${tick.value}`"
+            :y1="tick.pos"
+            :y2="tick.pos"
+            x1="0"
+            :x2="stageSize.width"
+          />
+        </g>
+
+        <g class="axis-lines">
+          <line x1="0" :x2="stageSize.width" :y1="stageSize.height" :y2="stageSize.height" />
+          <line x1="0" x2="0" y1="0" :y2="stageSize.height" />
+        </g>
+
+        <g class="axis-labels">
+          <text
+            v-for="tick in xTicks"
+            :key="`tx-${tick.value}`"
+            :x="tick.pos"
+            :y="stageSize.height - 10"
+            text-anchor="middle"
+          >
+            {{ tick.label }}
+          </text>
+          <text
+            v-for="tick in yTicks"
+            :key="`ty-${tick.value}`"
+            x="10"
+            :y="tick.pos - 6"
+          >
+            {{ tick.label }}
+          </text>
+        </g>
+      </svg>
+
       <div v-if="loading" class="scatter-mask">
         <span class="spinner"></span>
         <span>正在获取散点数据…</span>
@@ -37,8 +92,9 @@
     <footer>
       <span class="legend">
         <i class="legend-swatch" :style="{ background: legendGradient }" aria-hidden="true"></i>
-        <span>蓝紫色渐变代表不同数值</span>
+        <span>颜色越紫，毛利率越高</span>
       </span>
+      <span>X：当日销量（件） · Y：客单价（元）</span>
       <span>鼠标拖动平移 · 滚轮缩放</span>
     </footer>
   </div>
@@ -48,6 +104,7 @@
 import * as THREE from "three";
 import { useScatterData } from "@/hooks";
 import type { ScatterPoint } from "@/mock/scatterData";
+import { buildAxisTicks } from "./axis";
 
 const {
   data,
@@ -56,6 +113,9 @@ const {
   pointCount,
   reload,
 } = useScatterData({ count: 5000 });
+
+const channelCount = computed(() => new Set(data.value.map((point) => point.channel)).size);
+const channelNames = computed(() => Array.from(new Set(data.value.map((point) => point.channel))));
 
 const containerRef = ref<HTMLDivElement | null>(null);
 const zoom = ref("100%");
@@ -71,14 +131,55 @@ let renderer: THREE.WebGLRenderer | null = null;
 let points: THREE.Points | null = null;
 let animationId = 0;
 let resizeObserver: ResizeObserver | null = null;
+let bounds: { minX: number; maxX: number; minY: number; maxY: number } | null = null;
+let userAdjusted = false;
 
 let isDragging = false;
 let lastX = 0;
 let lastY = 0;
 let scale = 1;
 
-const MIN_SCALE = 0.2;
+const MIN_SCALE = 0.05;
 const MAX_SCALE = 10;
+const FIT_PADDING = 0.06;
+
+const stageSize = ref({ width: 0, height: 0 });
+const viewState = ref({ centerX: 0, centerY: 0, zoom: 1 });
+const AXIS_TICK_TARGET = 6;
+
+const showAxes = computed(() => stageSize.value.width > 0 && data.value.length > 0);
+
+const xTicks = computed(() =>
+  buildAxisTicks({
+    axis: "x",
+    width: stageSize.value.width,
+    height: stageSize.value.height,
+    centerX: viewState.value.centerX,
+    centerY: viewState.value.centerY,
+    zoom: viewState.value.zoom,
+    target: AXIS_TICK_TARGET,
+  }),
+);
+const yTicks = computed(() =>
+  buildAxisTicks({
+    axis: "y",
+    width: stageSize.value.width,
+    height: stageSize.value.height,
+    centerX: viewState.value.centerX,
+    centerY: viewState.value.centerY,
+    zoom: viewState.value.zoom,
+    target: AXIS_TICK_TARGET,
+  }),
+);
+
+function syncViewState() {
+  if (!camera) return;
+  viewState.value = {
+    centerX: camera.position.x,
+    centerY: camera.position.y,
+    zoom: camera.zoom,
+  };
+}
 
 
 function renderPoints(list: ScatterPoint[]) {
@@ -92,6 +193,24 @@ function renderPoints(list: ScatterPoint[]) {
   }
 
   if (list.length === 0) return;
+
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  let minValue = Infinity;
+  let maxValue = -Infinity;
+
+  for (const point of list) {
+    if (point.x < minX) minX = point.x;
+    if (point.x > maxX) maxX = point.x;
+    if (point.y < minY) minY = point.y;
+    if (point.y > maxY) maxY = point.y;
+    if (point.value < minValue) minValue = point.value;
+    if (point.value > maxValue) maxValue = point.value;
+  }
+
+  const valueSpan = maxValue - minValue || 1;
 
   const positions = new Float32Array(list.length * 3);
   const colors = new Float32Array(list.length * 3);
@@ -107,7 +226,7 @@ function renderPoints(list: ScatterPoint[]) {
     positions[offset + 1] = point.y;
     positions[offset + 2] = 0;
 
-    tmpColor.copy(colorA).lerp(colorB, point.value);
+    tmpColor.copy(colorA).lerp(colorB, (point.value - minValue) / valueSpan);
 
     colors[offset] = tmpColor.r;
     colors[offset + 1] = tmpColor.g;
@@ -162,8 +281,37 @@ function renderPoints(list: ScatterPoint[]) {
 
   points = new THREE.Points(geometry, material);
   scene.add(points);
+
+  bounds = { minX, maxX, minY, maxY };
+  userAdjusted = false;
+  fitCameraToBounds();
 }
 
+
+function fitCameraToBounds() {
+  const el = containerRef.value;
+  if (!el || !camera || !bounds) return;
+
+  const width = el.clientWidth || 800;
+  const height = el.clientHeight || 520;
+  const spanX = Math.max(bounds.maxX - bounds.minX, 1);
+  const spanY = Math.max(bounds.maxY - bounds.minY, 1);
+
+  const usableWidth = width * (1 - FIT_PADDING * 2);
+  const usableHeight = height * (1 - FIT_PADDING * 2);
+  const fitScale = Math.min(usableWidth / spanX, usableHeight / spanY);
+
+  scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, fitScale));
+  camera.zoom = scale;
+  camera.position.x = (bounds.minX + bounds.maxX) / 2;
+  camera.position.y = (bounds.minY + bounds.maxY) / 2;
+  camera.updateProjectionMatrix();
+
+  stageSize.value = { width, height };
+  syncViewState();
+
+  zoom.value = `${Math.round(scale * 100)}%`;
+}
 
 function resize() {
   const el = containerRef.value;
@@ -181,6 +329,11 @@ function resize() {
   camera.top = height / 2;
   camera.bottom = -height / 2;
   camera.updateProjectionMatrix();
+
+  stageSize.value = { width, height };
+  syncViewState();
+
+  if (!userAdjusted) fitCameraToBounds();
 }
 
 function onPointerDown(event: PointerEvent) {
@@ -201,6 +354,8 @@ function onPointerMove(event: PointerEvent) {
 
   camera.position.x -= dx;
   camera.position.y += dy;
+  userAdjusted = true;
+  syncViewState();
 
   lastX = event.clientX;
   lastY = event.clientY;
@@ -225,6 +380,8 @@ function onWheel(event: WheelEvent) {
 
   camera.zoom = scale;
   camera.updateProjectionMatrix();
+  userAdjusted = true;
+  syncViewState();
 
   zoom.value = `${Math.round(scale * 100)}%`;
 }
@@ -232,10 +389,18 @@ function onWheel(event: WheelEvent) {
 function resetView() {
   if (!camera) return;
 
+  userAdjusted = false;
+
+  if (bounds) {
+    fitCameraToBounds();
+    return;
+  }
+
   scale = 1;
   camera.zoom = 1;
   camera.position.set(0, 0, 1000);
   camera.updateProjectionMatrix();
+  syncViewState();
   zoom.value = "100%";
 }
 
@@ -273,6 +438,9 @@ onMounted(() => {
     camera.position.set(0, 0, 1000);
     camera.zoom = 1;
     camera.updateProjectionMatrix();
+
+    stageSize.value = { width, height };
+    syncViewState();
 
     renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -401,8 +569,46 @@ button.ghost {
   border: 1px solid #3b4d69;
 }
 
+.channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 20px 14px;
+}
+
+.channel-chip {
+  padding: 3px 10px;
+  font-size: 12px;
+  color: #b9cbe6;
+  background: rgb(37 99 235 / 12%);
+  border: 1px solid #27364b;
+  border-radius: 999px;
+}
+
 .scatter-stage {
   position: relative;
+}
+
+.axis-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.axis-layer .axis-grid line {
+  stroke: rgb(148 163 184 / 10%);
+  stroke-width: 1;
+}
+
+.axis-layer .axis-lines line {
+  stroke: rgb(148 163 184 / 40%);
+  stroke-width: 1;
+}
+
+.axis-layer .axis-labels text {
+  font-family: inherit;
+  font-size: 11px;
+  fill: #93a7c2;
 }
 
 .scatter-mask {
