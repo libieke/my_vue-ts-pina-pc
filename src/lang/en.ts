@@ -160,6 +160,7 @@ export default {
     rank3: 'Smart Watch Series',
     rank4: 'Slim Laptop',
     rank5: 'Tablet Air',
+    scatterPlot: 'Scatter Plot',
     orderStream: 'Live Order Stream',
     orderStreamTotal: '{count} orders',
     refresh: 'Refresh'
