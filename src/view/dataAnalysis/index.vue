@@ -3,9 +3,9 @@
     <div class="page-shell">
       <div class="page-header">
         <div>
-          <h2>{{ $t('menu.dataAnalysis') }}</h2>
+          <h2>{{ $t("menu.dataAnalysis") }}</h2>
         </div>
-        <el-button type="primary">{{ $t('analysis.exportReport') }}</el-button>
+        <el-button type="primary">{{ $t("analysis.exportReport") }}</el-button>
       </div>
 
       <div class="stat-grid">
@@ -18,7 +18,7 @@
 
       <div class="panel-row">
         <div class="analysis-card">
-          <h3>{{ $t('analysis.growthTrend') }}</h3>
+          <h3>{{ $t("analysis.growthTrend") }}</h3>
           <div class="chart-placeholder">
             <div class="bar-group">
               <span
@@ -32,7 +32,7 @@
         </div>
 
         <div class="analysis-card">
-          <h3>{{ $t('analysis.channelShare') }}</h3>
+          <h3>{{ $t("analysis.channelShare") }}</h3>
           <ul class="channel-list">
             <li v-for="item in channels" :key="item.name">
               <div class="channel-name">
@@ -44,6 +44,15 @@
           </ul>
         </div>
       </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <h3 class="section-title">
+            渠道销售量分布{{ $t("home.scatterPlot") }}
+          </h3>
+        </div>
+        <WebGLScatter />
+      </div>
     </div>
   </ContentTitle>
 </template>
@@ -54,12 +63,27 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-// 统计卡片与渠道列表（computed 包裹，切换语言自动更新）
 const stats = computed(() => [
-  { label: t("analysis.statNewUsers"), value: "2,438", note: t("analysis.noteUsers") },
-  { label: t("analysis.statActiveRate"), value: "68.4%", note: t("analysis.noteActive") },
-  { label: t("analysis.statConversion"), value: "5.3%", note: t("analysis.noteConversion") },
-  { label: t("analysis.statGmv"), value: "¥246.8K", note: t("analysis.noteGmv") },
+  {
+    label: t("analysis.statNewUsers"),
+    value: "2,438",
+    note: t("analysis.noteUsers"),
+  },
+  {
+    label: t("analysis.statActiveRate"),
+    value: "68.4%",
+    note: t("analysis.noteActive"),
+  },
+  {
+    label: t("analysis.statConversion"),
+    value: "5.3%",
+    note: t("analysis.noteConversion"),
+  },
+  {
+    label: t("analysis.statGmv"),
+    value: "¥246.8K",
+    note: t("analysis.noteGmv"),
+  },
 ]);
 
 const channels = computed(() => [
@@ -195,5 +219,38 @@ h2 {
   height: 10px;
   border-radius: 50%;
   display: inline-block;
+}
+.section-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d2129;
+      margin: 0;
+      display: flex;
+      align-items: center;
+
+      .title-icon {
+        margin-right: 6px;
+        color: #409eff;
+      }
+      .title-optimized {
+        font-size: 12px;
+        color: #909399;
+        margin-left: 8px;
+      }
+    }
+  }
 }
 </style>

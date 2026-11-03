@@ -159,7 +159,10 @@ export default {
     rank2: 'Wireless Earbuds',
     rank3: 'Smart Watch Series',
     rank4: 'Slim Laptop',
-    rank5: 'Tablet Air'
+    rank5: 'Tablet Air',
+    orderStream: 'Live Order Stream',
+    orderStreamTotal: '{count} orders',
+    refresh: 'Refresh'
   },
   order: {
     create: 'New Order',

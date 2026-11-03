@@ -35,8 +35,8 @@
           <el-table-column prop="amount" :label="$t('order.amount')" width="120" />
           <el-table-column prop="status" :label="$t('order.status')" width="120">
             <template #default="scope">
-              <el-tag :type="statusType(scope.status)">{{
-                statusText(scope.status)
+              <el-tag :type="statusType(scope.row.status)">{{
+                statusText(scope.row.status)
               }}</el-tag>
             </template>
           </el-table-column>
@@ -55,7 +55,6 @@ const { t } = useI18n();
 
 const keyword = ref("");
 
-// 统计卡片（computed 包裹，切换语言自动更新）
 const stats = computed(() => [
   { label: t("order.statTotal"), value: "1,256", trend: 12.4 },
   { label: t("order.statPending"), value: "128", trend: 4.1 },
@@ -101,16 +100,19 @@ const list = ref([
   },
 ]);
 
-// 状态编码 -> i18n key
 const statusTextMap: Record<string, string> = {
   pending: "order.statusPending",
   shipped: "order.statusShipped",
   completed: "order.statusCompleted",
 };
 
-const statusText = (status: string) => t(statusTextMap[status] || status);
+const statusText = (status?: string) => {
+  if (!status) return "-";
+  const key = statusTextMap[status];
+  return key ? t(key) : status;
+};
 
-const statusType = (status: string) => {
+const statusType = (status?: string) => {
   if (status === "completed") return "success";
   if (status === "shipped") return "primary";
   return "warning";

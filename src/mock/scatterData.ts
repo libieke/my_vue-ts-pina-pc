@@ -1,5 +1,6 @@
 import type { MockApiResponse } from './types'
 import { mockDelay } from './types'
+import { createRandom, sampleRange } from './random'
 
 export interface ScatterPoint {
   x: number
@@ -33,26 +34,11 @@ export const SCATTER_CHANNELS: SalesChannelProfile[] = [
   { name: '跨境电商', volume: [250, 650], price: [420, 600], margin: [0.33, 0.45] },
 ]
 
-function createRandom(seed: number) {
-  let state = seed >>> 0
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0
-    let t = Math.imul(state ^ (state >>> 15), 1 | state)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value))
 
 const toPositiveInt = (value: number | undefined, fallback: number) => {
   if (!Number.isFinite(value)) return fallback
   return Math.max(1, Math.floor(value as number))
-}
-
-const sampleRange = ([min, max]: [number, number], random: () => number) => {
-  const ratio = (random() + random()) / 2
-  return min + (max - min) * ratio
 }
 
 export function createScatterPoints(params: ScatterQueryParams = {}): ScatterPoint[] {

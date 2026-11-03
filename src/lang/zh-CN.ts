@@ -161,6 +161,9 @@ export default {
     rank4: "轻薄笔记本电脑",
     rank5: "平板电脑 Air",
     scatterPlot: "散点图",
+    orderStream: "实时订单流",
+    orderStreamTotal: "共 {count} 条订单",
+    refresh: "刷新",
   },
   order: {
     create: "新建订单",

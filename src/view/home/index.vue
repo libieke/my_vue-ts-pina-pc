@@ -63,13 +63,71 @@
       </div>
     </div>
 
-    <div class="section-card">
+
+    <div class="section-card order-stream">
       <div class="section-header">
         <h3 class="section-title">
-          渠道销售量分布{{ $t("home.scatterPlot") }}
+          <el-icon class="title-icon"><Tickets /></el-icon>
+          {{ $t("home.orderStream") }}
+          <span class="title-optimized">大数据渲染加载优化</span>
         </h3>
+        <div class="order-toolbar">
+          <span class="order-total">
+            <template v-if="orderLoading">加载中…</template>
+            <template v-else>
+              {{ $t("home.orderStreamTotal", { count: orderStreamTotal }) }}
+            </template>
+          </span>
+          <el-button
+            link
+            type="primary"
+            :icon="Refresh"
+            :loading="orderLoading"
+            @click="reloadOrders"
+          >
+            {{ $t("home.refresh") }}
+          </el-button>
+        </div>
       </div>
-      <WebGLScatter />
+
+      <el-alert
+        v-if="orderError"
+        :title="orderError"
+        type="error"
+        :closable="false"
+        show-icon
+      />
+
+      <VirtualList
+        v-if="!orderError"
+        :items="orderList"
+        :columns="orderColumns"
+        :item-size="64"
+        key-field="id"
+        class="order-list"
+      >
+        <template #cell-order="{ item }">
+          <div class="order-main">
+            <span class="order-no">{{ item.orderNo }}</span>
+            <span class="order-product">{{ item.product }}</span>
+          </div>
+        </template>
+        <template #cell-amount="{ item }">
+          <span class="order-amount">¥ {{ item.amount.toLocaleString() }}</span>
+        </template>
+        <template #cell-status="{ item }">
+          <el-tag
+            size="small"
+            effect="light"
+            :type="statusMeta(item.status).type"
+          >
+            {{ statusMeta(item.status).label }}
+          </el-tag>
+        </template>
+        <template #cell-createdAt="{ item }">
+          <span class="order-time">{{ item.createdAt }}</span>
+        </template>
+      </VirtualList>
     </div>
 
     <div class="section-card rich-text-demo">
@@ -210,15 +268,38 @@ import {
   DataAnalysis,
   Message,
   Folder,
+  Tickets,
+  Refresh,
 } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
-import { useVisitCounter } from "@/hooks";
+import { useVisitCounter, useOrderStream } from "@/hooks";
+import { ORDER_STATUS_META } from "@/mock/orderStreamData";
+import type { OrderStatus } from "@/mock/orderStreamData";
 import { useI18n } from "vue-i18n";
+import { log } from "three";
 
 const { t } = useI18n();
 
 const router = useRouter();
+
+const {
+  list: orderList,
+  loading: orderLoading,
+  error: orderError,
+  total: orderStreamTotal,
+  reload: reloadOrders,
+} = useOrderStream({ count: 5000 });
+
+const statusMeta = (status: OrderStatus) => ORDER_STATUS_META[status];
+
+const orderColumns = [
+  { key: "order", label: "订单 / 商品", flex: 1 },
+  { key: "channel", label: "渠道", width: 84 },
+  { key: "amount", label: "金额（元）", width: 96, align: "right" },
+  { key: "status", label: "状态", width: 72 },
+  { key: "createdAt", label: "下单时间", width: 92, align: "right" },
+];
 
 const richTextContent = ref(
   "<p>欢迎使用 <strong>通用富文本组件</strong>，支持 <em>加粗</em>、<u>下划线</u>、列表和链接等基础编辑能力。</p>",
@@ -588,6 +669,11 @@ onMounted(() => {
           margin-right: 6px;
           color: #409eff;
         }
+        .title-optimized {
+          font-size: 12px;
+          color: #909399;
+          margin-left: 8px;
+        }
       }
     }
   }
@@ -665,6 +751,55 @@ onMounted(() => {
           margin: 8px 0;
         }
       }
+    }
+  }
+
+  .order-stream {
+    .order-toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .order-total {
+      font-size: 12px;
+      color: #86909c;
+    }
+
+    .order-list {
+      height: 420px;
+      border: 1px solid #f2f3f5;
+      border-radius: 8px;
+    }
+
+    .order-main {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .order-no {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .order-product {
+      overflow: hidden;
+      font-size: 12px;
+      color: #86909c;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .order-amount {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .order-time {
+      font-size: 12px;
+      color: #86909c;
     }
   }
 
