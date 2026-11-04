@@ -299,9 +299,9 @@ const statusMeta = (status: OrderStatus) => ORDER_STATUS_META[status];
 const orderColumns = [
   { key: "order", label: "订单 / 商品", flex: 3 },
   { key: "channel", label: "渠道", flex: 1.4 },
-  { key: "amount", label: "金额（元）", flex: 1.4, align: "right" },
+  { key: "amount", label: "金额（元）", flex: 1.4, align: "left" },
   { key: "status", label: "状态", flex: 1.1 },
-  { key: "createdAt", label: "下单时间", flex: 1.6, align: "right" },
+  { key: "createdAt", label: "下单时间", flex: 1.6, align: "left" },
 ];
 
 const richTextContent = ref(
