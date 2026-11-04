@@ -42,13 +42,18 @@ watch(
 
 <style scoped lang="scss">
 .common-layout {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  height: 100%;
-
-  :deep(.el-container) {
-    height: 100%;
-  }
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
+
+.common-layout :deep(.el-container) {
+  min-height: 0;
+}
+
 .el-main {
   padding: 0;
   overflow-y: auto;

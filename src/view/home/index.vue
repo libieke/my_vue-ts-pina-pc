@@ -297,11 +297,11 @@ console.log("orderList", orderList);
 const statusMeta = (status: OrderStatus) => ORDER_STATUS_META[status];
 
 const orderColumns = [
-  { key: "order", label: "订单 / 商品", flex: 1 },
-  { key: "channel", label: "渠道", width: 84 },
-  { key: "amount", label: "金额（元）", width: 96, align: "right" },
-  { key: "status", label: "状态", width: 72 },
-  { key: "createdAt", label: "下单时间", width: 92, align: "right" },
+  { key: "order", label: "订单 / 商品", flex: 3 },
+  { key: "channel", label: "渠道", flex: 1.4 },
+  { key: "amount", label: "金额（元）", flex: 1.4, align: "right" },
+  { key: "status", label: "状态", flex: 1.1 },
+  { key: "createdAt", label: "下单时间", flex: 1.6, align: "right" },
 ];
 
 const richTextContent = ref(

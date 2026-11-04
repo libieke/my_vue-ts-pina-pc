@@ -36,7 +36,7 @@
           :ref="(el) => setItemRef(el, startIndex + idx)"
           class="virtual-list__item"
           :class="{ 'virtual-list__item--columns': hasColumns }"
-          :style="itemStyle"
+          :style="itemStyle ?? undefined"
           :data-index="startIndex + idx"
         >
           <slot v-if="!hasColumns" :item="item" :index="startIndex + idx" />
@@ -66,32 +66,59 @@
   </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  items: { type: Array, default: () => [] },
-  itemSize: { type: Number, default: null },
-  estimatedItemSize: { type: Number, default: 50 },
-  overscan: { type: Number, default: 3 },
-  keyField: { type: String, default: "id" },
-  columns: { type: Array, default: () => [] },
-  debug: { type: Boolean, default: false },
+<script setup lang="ts">
+import type { ComponentPublicInstance, CSSProperties } from "vue";
+
+type ListItem = Record<string, any>;
+
+export interface ColumnConfig {
+  key: string;
+  label?: string;
+  width?: number | string;
+  flex?: number;
+  align?: "left" | "center" | "right";
+}
+
+interface Range {
+  start: number;
+  end: number;
+}
+
+interface Props {
+  items?: ListItem[];
+  itemSize?: number | null;
+  estimatedItemSize?: number;
+  overscan?: number;
+  keyField?: string;
+  columns?: ColumnConfig[];
+  debug?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  items: () => [],
+  itemSize: null,
+  estimatedItemSize: 50,
+  overscan: 3,
+  keyField: "id",
+  columns: () => [],
+  debug: false,
 });
 
-const columns = computed(() =>
+const columns = computed<ColumnConfig[]>(() =>
   Array.isArray(props.columns) ? props.columns : [],
 );
-const hasColumns = computed(() => columns.value.length > 0);
+const hasColumns = computed<boolean>(() => columns.value.length > 0);
 
-const scrollbarWidth = ref(0);
+const scrollbarWidth = ref<number>(0);
 
-function measureScrollbar() {
+function measureScrollbar(): void {
   const el = containerRef.value;
   if (!el) return;
   scrollbarWidth.value = Math.max(0, el.offsetWidth - el.clientWidth);
 }
 
-function cellStyle(column) {
-  const style = { minWidth: 0 };
+function cellStyle(column: ColumnConfig): CSSProperties {
+  const style: CSSProperties = { minWidth: 0 };
   if (column.width) {
     style.width =
       typeof column.width === "number" ? `${column.width}px` : column.width;
@@ -109,32 +136,32 @@ function cellStyle(column) {
   return style;
 }
 
-const itemStyle = computed(() => {
+const itemStyle = computed<CSSProperties | null>(() => {
   if (!hasColumns.value || !props.itemSize) return null;
   return { height: `${props.itemSize}px` };
 });
 
-function formatCell(item, column) {
+function formatCell(item: ListItem, column: ColumnConfig): string {
   const value = item?.[column.key];
   return value === undefined || value === null ? "" : String(value);
 }
 
-const containerRef = ref(null);
-const scrollTop = ref(0);
-const viewportHeight = ref(0);
-const itemRefs = new Map();
+const containerRef = ref<HTMLElement | null>(null);
+const scrollTop = ref<number>(0);
+const viewportHeight = ref<number>(0);
+const itemRefs = new Map<number, HTMLElement>();
 
-const measuredHeights = ref(new Map());
-const prefixSums = ref([0]);
+const measuredHeights = ref<Map<number, number>>(new Map());
+const prefixSums = ref<number[]>([0]);
 
-const totalHeight = computed(() => {
+const totalHeight = computed<number>(() => {
   if (props.itemSize) {
     return props.items.length * props.itemSize;
   }
   return prefixSums.value[prefixSums.value.length - 1] || 0;
 });
 
-function computeRange() {
+function computeRange(): Range {
   const count = props.items.length;
   if (count === 0) return { start: 0, end: 0 };
 
@@ -156,7 +183,7 @@ function computeRange() {
   return { start, end };
 }
 
-function findIndexByOffset(offset) {
+function findIndexByOffset(offset: number): number {
   const sums = prefixSums.value;
   let lo = 0;
   let hi = sums.length - 1;
@@ -168,16 +195,16 @@ function findIndexByOffset(offset) {
   return Math.min(lo, props.items.length - 1);
 }
 
-const range = computed(() => computeRange());
+const range = computed<Range>(() => computeRange());
 
-const startIndex = computed(() => range.value.start);
+const startIndex = computed<number>(() => range.value.start);
 
-const visibleItems = computed(() => {
+const visibleItems = computed<ListItem[]>(() => {
   const { start, end } = range.value;
   return props.items.slice(start, end);
 });
 
-const offsetY = computed(() => {
+const offsetY = computed<number>(() => {
   if (props.itemSize) return startIndex.value * props.itemSize;
   return prefixSums.value[startIndex.value] || 0;
 });
@@ -203,25 +230,30 @@ watch(startIndex, (start) => {
   );
 });
 
-let rafId = null;
-function handleScroll(e) {
+let rafId: ReturnType<typeof requestAnimationFrame> | null = null;
+
+function handleScroll(e: Event): void {
   if (rafId) return;
+  const target = e.target as HTMLElement;
   rafId = requestAnimationFrame(() => {
-    scrollTop.value = e.target.scrollTop;
+    scrollTop.value = target.scrollTop;
     rafId = null;
   });
 }
 
-function setItemRef(el, index) {
-  if (!el) {
+function setItemRef(
+  el: Element | ComponentPublicInstance | null,
+  index: number,
+): void {
+  if (!el || !(el instanceof HTMLElement)) {
     itemRefs.delete(index);
     return;
   }
   itemRefs.set(index, el);
 }
 
-function rebuildPrefixSums() {
-  const sums = [0];
+function rebuildPrefixSums(): void {
+  const sums: number[] = [0];
   for (let i = 0; i < props.items.length; i++) {
     const h = measuredHeights.value.get(i) ?? props.estimatedItemSize;
     sums.push(sums[i] + h);
@@ -229,50 +261,55 @@ function rebuildPrefixSums() {
   prefixSums.value = sums;
 }
 
-function updateItemHeight(index, height) {
+function updateItemHeight(index: number, height: number): void {
   const prev = measuredHeights.value.get(index);
   if (prev !== undefined && Math.abs(prev - height) < 0.5) return;
   measuredHeights.value.set(index, height);
   rebuildPrefixSums();
 }
 
-let resizeObserver = null;
-function observeRenderedItems() {
+let resizeObserver: ResizeObserver | null = null;
+
+function observeRenderedItems(): void {
   if (props.itemSize) return;
   if (!resizeObserver) {
     resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const index = Number(entry.target.dataset.index);
-        const height = entry.target.getBoundingClientRect().height;
+        const target = entry.target as HTMLElement;
+        const index = Number(target.dataset.index);
+        const height = target.getBoundingClientRect().height;
         updateItemHeight(index, height);
       }
     });
   }
   resizeObserver.disconnect();
-  itemRefs.forEach((el) => resizeObserver.observe(el));
+  itemRefs.forEach((el) => resizeObserver!.observe(el));
 }
 
+let containerObserver: ResizeObserver | null = null;
 
 onMounted(() => {
-  viewportHeight.value = containerRef.value.clientHeight;
+  viewportHeight.value = containerRef.value?.clientHeight ?? 0;
   rebuildPrefixSums();
 
-  const containerObserver = new ResizeObserver(() => {
+  containerObserver = new ResizeObserver(() => {
     viewportHeight.value = containerRef.value?.clientHeight || 0;
     measureScrollbar();
   });
-  containerObserver.observe(containerRef.value);
+  if (containerRef.value) {
+    containerObserver.observe(containerRef.value);
+  }
 
   nextTick(() => {
     measureScrollbar();
     observeRenderedItems();
   });
+});
 
-  onBeforeUnmount(() => {
-    containerObserver.disconnect();
-    resizeObserver?.disconnect();
-    if (rafId) cancelAnimationFrame(rafId);
-  });
+onBeforeUnmount(() => {
+  containerObserver?.disconnect();
+  resizeObserver?.disconnect();
+  if (rafId) cancelAnimationFrame(rafId);
 });
 
 watch(
@@ -292,7 +329,7 @@ watch(startIndex, () => {
   nextTick(observeRenderedItems);
 });
 
-function getKey(item, index) {
+function getKey(item: ListItem, index: number): string | number {
   return item?.[props.keyField] ?? index;
 }
 </script>
@@ -309,7 +346,7 @@ function getKey(item, index) {
   box-sizing: border-box;
   display: flex;
   flex: none;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
   height: 38px;
   font-size: 12px;
@@ -363,7 +400,7 @@ function getKey(item, index) {
 
 .virtual-list__item--columns {
   display: flex;
-  gap: 12px;
+  gap: 18px;
   align-items: center;
   font-size: 13px;
   color: #1d2129;

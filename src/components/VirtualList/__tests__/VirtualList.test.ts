@@ -63,7 +63,7 @@ describe("VirtualList", () => {
     const wrapper = mount(VirtualList, {
       props: { items, itemSize: 40 },
       slots: {
-        default: ({ item }: { item: { name: string } }) =>
+        default: ({ item }: { item: Record<string, any> }) =>
           h("div", { class: "row" }, item.name),
       },
     });
