@@ -70,4 +70,27 @@ describe('VirtualList', () => {
     expect(wrapper.find('.virtual-list__header').exists()).toBe(false)
     expect(wrapper.find('.row').text()).toBe('张三')
   })
+
+  it('debug 开启时会在控制台打印渲染的数据', () => {
+    const log = jest.spyOn(console, 'log').mockImplementation(() => {})
+
+    mountList({ columns, debug: true })
+
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining('[VirtualList]'),
+      expect.any(Array),
+    )
+
+    log.mockRestore()
+  })
+
+  it('debug 关闭时不会打印日志', () => {
+    const log = jest.spyOn(console, 'log').mockImplementation(() => {})
+
+    mountList({ columns })
+
+    expect(log).not.toHaveBeenCalled()
+
+    log.mockRestore()
+  })
 })

@@ -103,6 +103,7 @@
         :items="orderList"
         :columns="orderColumns"
         :item-size="64"
+        :debug="isDev"
         key-field="id"
         class="order-list"
       >
@@ -277,11 +278,12 @@ import { useVisitCounter, useOrderStream } from "@/hooks";
 import { ORDER_STATUS_META } from "@/mock/orderStreamData";
 import type { OrderStatus } from "@/mock/orderStreamData";
 import { useI18n } from "vue-i18n";
-import { log } from "three";
 
 const { t } = useI18n();
 
 const router = useRouter();
+
+const isDev = import.meta.env.DEV;
 
 const {
   list: orderList,
@@ -290,7 +292,7 @@ const {
   total: orderStreamTotal,
   reload: reloadOrders,
 } = useOrderStream({ count: 5000 });
-
+console.log("orderList", orderList);
 const statusMeta = (status: OrderStatus) => ORDER_STATUS_META[status];
 
 const orderColumns = [

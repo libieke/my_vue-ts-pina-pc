@@ -74,6 +74,7 @@ const props = defineProps({
   overscan: { type: Number, default: 3 },
   keyField: { type: String, default: "id" },
   columns: { type: Array, default: () => [] },
+  debug: { type: Boolean, default: false },
 });
 
 const columns = computed(() =>
@@ -179,6 +180,27 @@ const visibleItems = computed(() => {
 const offsetY = computed(() => {
   if (props.itemSize) return startIndex.value * props.itemSize;
   return prefixSums.value[startIndex.value] || 0;
+});
+
+watch(
+  () => props.items,
+  (items) => {
+    if (!props.debug) return;
+    console.log(
+      `[VirtualList] 数据源共 ${items.length} 条，首屏渲染 ${visibleItems.value.length} 条`,
+      visibleItems.value,
+    );
+  },
+  { immediate: true },
+);
+
+watch(startIndex, (start) => {
+  if (!props.debug) return;
+  const items = visibleItems.value;
+  console.log(
+    `[VirtualList] 滚动渲染第 ${start} ~ ${start + items.length - 1} 条（共 ${props.items.length} 条）`,
+    items,
+  );
 });
 
 let rafId = null;
