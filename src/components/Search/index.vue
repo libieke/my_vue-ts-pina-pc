@@ -1,3 +1,4 @@
+
 <template>
   <div class="search-wrapper">
     <el-form :model="formModel" class="search-form">
@@ -222,7 +223,6 @@ watch(
 );
 
 const getControlProps = (field: SearchField, placeholderType?: "input" | "select") => {
-  // 占位文案默认值统一走 i18n，切换语言时自动更新
   const label = field.label || field.prop;
   const defaultPlaceholder = placeholderType
     ? t(

@@ -1,4 +1,4 @@
-<!-- 布局1 -->
+
 <template>
   <div class="common-layout">
     <el-container>
@@ -27,7 +27,6 @@ import TagsView from "@/components/TagsView/index.vue";
 const route = useRoute();
 const tagsStore = useTagsStore();
 
-// 监听路由变化，自动添加标签（去重）
 watch(
   () => route.path,
   (path) => {

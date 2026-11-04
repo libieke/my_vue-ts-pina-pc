@@ -1,3 +1,4 @@
+
 <template>
   <div class="tags-view">
     <div class="tags-scroll">
@@ -9,7 +10,6 @@
         @click="handleClick(tag)"
       >
         <span class="tag-title">{{ tag.title ? $t(tag.title) : $t('tags.untitled') }}</span>
-        <!-- 首页标签固定不可关闭 -->
         <el-icon
           v-if="tag.path !== '/home'"
           class="tag-close"
@@ -44,27 +44,22 @@ const router = useRouter();
 const tagsStore = useTagsStore();
 const { visitedViews } = storeToRefs(tagsStore);
 
-// 判断是否是当前激活的标签
 const isActive = (path: string) => route.path === path;
 
-// 点击标签跳转
 const handleClick = (tag: { path: string }) => {
   if (route.path !== tag.path) {
     router.push(tag.path);
   }
 };
 
-// 关闭标签
 const handleClose = (tag: { path: string; title: string }) => {
   tagsStore.delView(tag.path);
-  // 如果关闭的是当前页，跳转到最后一个标签
   if (route.path === tag.path) {
     const lastTag = visitedViews.value[visitedViews.value.length - 1];
     router.push(lastTag ? lastTag.path : "/home");
   }
 };
 
-// 下拉菜单操作
 const handleCommand = (command: string) => {
   if (command === "closeOthers") {
     tagsStore.delOtherViews(route.path);

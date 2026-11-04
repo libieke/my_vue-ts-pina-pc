@@ -1,3 +1,4 @@
+
 <template>
   <el-table
     ref="refTable"
@@ -56,45 +57,33 @@
 <script setup>
 import { color } from "echarts";
 
-//暂无数据列表
 let props = defineProps({
-  // 表格数据以及表头数据
   tableData: {
     type: Object,
     default: () => {
       return { data: [], titles: [] };
     },
   },
-  // // 设置斑马纹的颜色
-  // stripeColor: {
-  //   type: String,
-  //   default: "#fff",
-  // },
-  // 表格高度
   tableHeight: {
     type: Number,
     default: 500,
   },
-  // 表头样式
   headerCellStyle: {
     type: Object,
     default: () => {
       return { color: "#232932", background: "#fff", height: "40px" };
     },
   },
-  // 表格样式
   cellStyle: {
     type: Object,
     default: () => {
       return { color: "#646a73", background: "#fff" };
     },
   },
-  // 是否显示选择栏
   selectShow: {
     type: Boolean,
     default: true,
   },
-  // 是否显示index
   sort: {
     type: Boolean,
     default: false,
@@ -108,37 +97,30 @@ let emit = defineEmits([
   "resetFn",
 ]);
 
-// 防止 tableData 为空时，el-table 直接读取 undefined.data，从而出现白屏或运行时报错
 const safeTableData = computed(() => {
   return Array.isArray(props.tableData?.data) ? props.tableData.data : [];
 });
 
-// 表头同样兜底，避免后端没返回 titles 或返回 null 时渲染失败
 const safeTitles = computed(() => {
   return Array.isArray(props.tableData?.titles) ? props.tableData.titles : [];
 });
 
-// 选中项发生改变
 const handleSelectionChange = (selection) => {
   emit("selectionChange", selection);
 };
 
-// 手动触发勾选
 const handleSelectChange = (selection, row) => {
   emit("selectChange", selection, row);
 };
 
-// 手动触发全选
 const handleSelectAllChange = (selection) => {
   emit("selectAllChange", selection);
 };
 
-// 表格内按钮
 const resetFn = (row) => {
   emit("resetFn", row);
 };
 const refTable = ref();
-// 回显选中
 const handleEcho = (echoData) => {
   clearSelection();
   if (echoData && echoData.length) {
@@ -147,7 +129,6 @@ const handleEcho = (echoData) => {
     }
   }
 };
-// 清空选择
 const clearSelection = () => {
   refTable.value.clearSelection();
 };
@@ -169,17 +150,6 @@ defineExpose({ handleEcho, clearSelection });
     color: #fff;
   }
 }
-// ::v-deep(.el-table__header-wrapper) {
-//   .has-gutter {
-//     color: #1d2129;
-//     th {
-//       background: #003b7a;
-//     }
-//     tr {
-//       background: #003b7a;
-//     }
-//   }
-// }
 
 ::v-deep(.el-table__cell) {
   padding: 4px 0 !important;
@@ -189,22 +159,18 @@ defineExpose({ handleEcho, clearSelection });
   background-color: #e5e5e5 !important;
 }
 
-// 隐藏滚动条
 ::v-deep(.el-table__body-wrapper) {
   &::-webkit-scrollbar {
-    // 整个滚动条
-    width: 0 !important; // 纵向滚动条的宽度
+    width: 0 !important;
     background: transparent;
     border: none;
   }
 
   &::-webkit-scrollbar-track {
-    // 滚动条轨道
     border: none !important;
   }
-  /* 滚动条轨道内部空白区域样式 */
   &::-webkit-scrollbar-track {
-    background-color: transparent; /* 设置轨道背景色为浅灰色 */
+    background-color: transparent;
   }
 }
 </style>

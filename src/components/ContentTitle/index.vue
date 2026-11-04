@@ -1,7 +1,6 @@
+
 <template>
-  <!-- <div class="padding-left-20 padding-right-20"> -->
   <div>
-    <!-- <h2 class="font-14">{{ title }}</h2> -->
     <div class="bg-white"><slot /></div>
   </div>
 </template>

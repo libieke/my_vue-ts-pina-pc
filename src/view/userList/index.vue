@@ -1,3 +1,4 @@
+
 <template>
   <ContentTitle>
     <div class="user-list-page">
@@ -80,7 +81,6 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-// 筛选字段使用 computed 包裹，切换语言时自动更新
 const searchFields = computed(() => [
   {
     prop: "nickName",
@@ -136,7 +136,6 @@ const tableData = reactive({
   data: [],
 });
 
-// 表头使用 computed 包裹，切换语言时自动更新
 const tableTitles = computed(() => [
   {
     title: t("user.user"),
@@ -161,7 +160,6 @@ const tableTitles = computed(() => [
 ]);
 
 const loadUserList = async () => {
-  // 这里先使用 mock 数据；后续接真实接口时直接替换为 request() 调用即可
   const res = await mockUserListApi();
   tableData.data = Array.isArray(res?.data) ? res.data : [];
 };
@@ -272,7 +270,6 @@ const handleDel = (row) => {
       ElMessage.info(t("user.deleteCancelled"));
     });
 };
-// 表格内按钮
 const handleReset = (row) => {
   ElMessageBox.confirm(
     t("user.resetConfirmMsg", {
@@ -299,7 +296,6 @@ const handleReset = (row) => {
       ElMessage.info(t("user.resetCancelled"));
     });
 };
-// 选中项发生改变
 const handleSelectionChange = debounce((val) => {
   console.log("val---", val);
 }, 100);

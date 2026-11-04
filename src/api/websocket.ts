@@ -1,5 +1,3 @@
-// WebSocket 业务协议：统一看板消息事件名和数据格式
-// 后续接真实后端时，只需要替换这里的 URL 和消息内容，不需要改页面逻辑。
 
 export interface DashboardStats {
   totalUsers: number
@@ -18,8 +16,6 @@ export interface DashboardSocketPayload {
   totalSales?: number
 }
 
-// 实际后端地址建议配置为：ws://localhost:8080/ws/dashboard
-// 这里先保留可运行的示例地址，等后端接通后替换即可。
 export const DASHBOARD_WS_URL = 'wss://echo.websocket.events'
 
 export const buildDashboardSubscribeMessage = () => {

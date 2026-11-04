@@ -1,3 +1,4 @@
+
 <template>
   <div class="login">
     <div class="login-box">
@@ -36,24 +37,6 @@
                 >
                 </el-input>
               </el-form-item>
-              <!-- <el-form-item>
-                <div class="authCode-box">
-                  <el-input
-                    @input="
-                      formData.authCode = formData.authCode.replace(
-                        /[^\d]/g,
-                        ''
-                      )
-                    "
-                    v-model="formData.authCode"
-                    placeholder="请输入验证码"
-                  >
-                  </el-input>
-                  <div class="authCode">
-                    <img src="./../assets/images/loginbg.png" />
-                  </div>
-                </div>
-              </el-form-item> -->
               <el-form-item>
                 <el-button
                   class="submint-but"
@@ -61,7 +44,6 @@
                   @click="onSubmit(loginFroms)"
                   >{{ $t('login.submit') }}</el-button
                 >
-                <!-- <el-checkbox v-model="isRemember">记住密码</el-checkbox> -->
               </el-form-item>
             </el-form>
           </div>
@@ -93,7 +75,6 @@ interface RuleForm {
 }
 let loginFroms = ref();
 
-// 校验规则使用 computed 包裹，切换语言时提示文案自动更新
 const rules = computed<FormRules<RuleForm>>(() => ({
   userName: [
     {
@@ -120,14 +101,10 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       console.log("submit!");
-      // 加载效果：开始加载
       loading.value = true;
-      // 成功的话到首页，失败的话弹出失败信息
       try {
-        // 等待登录接口返回结果
         await useStore.userLogin(formData);
 
-        // 登录成功提示
         ElNotification({
           type: "success",
           message: t("login.success"),
@@ -136,12 +113,9 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         let redirect: any = $route.query.redirect;
         $router.push({ path: redirect || "/" });
 
-        // 登录成功加载效果消失
         loading.value = false;
       } catch (error) {
-        // 登录失败加载效果消失
         loading.value = false;
-        // 登录失败的提示信息
         ElNotification({
           type: "error",
           message: (error as Error).message || t("login.failed"),
@@ -178,7 +152,6 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       font-weight: 400;
       font-size: 72px;
       line-height: 96px;
-      /* or 133% */
 
       color: #ffffff;
       display: flex;
@@ -190,7 +163,6 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         font-weight: 200;
         font-size: 24px;
         line-height: 34px;
-        /* identical to box height */
 
         color: rgba(255, 255, 255, 0.6);
         margin-top: 100px;
@@ -228,10 +200,6 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
           margin-top: 40px;
           margin-bottom: 16px;
         }
-        // ::v-deep (.el-input__prefix) {
-        //   color: #000;
-        //   font-size: 14px;
-        // }
       }
       .authCode-box {
         display: flex;

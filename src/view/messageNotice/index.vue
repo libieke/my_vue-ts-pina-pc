@@ -1,9 +1,9 @@
+
 <template>
   <ContentTitle>
     <div class="page-shell">
       <div class="page-header">
         <div>
-          <!-- <p class="eyebrow">消息中心</p> -->
           <h2>{{ $t('menu.messageNotice') }}</h2>
         </div>
         <el-button type="primary">{{ $t('message.markAllRead') }}</el-button>
@@ -40,7 +40,6 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-// 消息列表（computed 包裹，切换语言自动更新）
 const notices = computed(() => [
   {
     id: 1,

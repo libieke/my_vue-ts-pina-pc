@@ -1,9 +1,9 @@
+
 <template>
   <ContentTitle>
     <div class="page-shell">
       <div class="page-header">
         <div>
-          <!-- <p class="eyebrow">资源管理</p> -->
           <h2>{{ $t('menu.fileManage') }}</h2>
         </div>
         <el-button type="primary">{{ $t('file.upload') }}</el-button>

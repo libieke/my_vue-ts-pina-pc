@@ -4,17 +4,15 @@ export function getRandomNum(Min, Max) {
   return Min + Math.floor(Rand * Range);
 }
 
-// 导出excel
 export function export_excel_file(export_data, list_name) {
   let link = document.createElement("a");
-  //    type就是blob的type,是MIME类型的，可以自己查看MIME类型都有哪些
   let blogw = new Blob([export_data], { type: "application/vnd.ms-excel" });
-  let objectUrl = window.URL.createObjectURL(blogw); //创建一个新的url对象
+  let objectUrl = window.URL.createObjectURL(blogw);
   link.href = objectUrl;
   let file_name = ` ${list_name + new Date()}列表.xlsx`;
-  link.download = file_name; //  下载的时候自定义的文件名
+  link.download = file_name;
   link.click();
-  window.URL.revokeObjectURL(objectUrl); //为了更好地性能和内存使用状况，应该在适当的时候释放url.
+  window.URL.revokeObjectURL(objectUrl);
 }
 
 function DateTimeConvert(time, type) {
@@ -60,12 +58,6 @@ function DateTimeConvert(time, type) {
   return res;
 }
 
-/**
- * Parse the time to string
- * @param {(Object|string|number)} time
- * @param {string} cFormat
- * @returns {string | null}
- */
 export function parseTime(time, cFormat) {
   if (arguments.length === 0 || !time) {
     return null;
@@ -77,11 +69,8 @@ export function parseTime(time, cFormat) {
   } else {
     if (typeof time === "string") {
       if (/^[0-9]+$/.test(time)) {
-        // support "1548221490638"
         time = parseInt(time);
       } else {
-        // support safari
-        // https://stackoverflow.com/questions/4310953/invalid-date-in-safari
         time = time.replace(new RegExp(/-/gm), "/");
       }
     }
@@ -102,7 +91,6 @@ export function parseTime(time, cFormat) {
   };
   const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
     const value = formatObj[key];
-    // Note: getDay() returns 0 on Sunday
     if (key === "a") {
       return ["日", "一", "二", "三", "四", "五", "六"][value];
     }

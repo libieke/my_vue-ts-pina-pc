@@ -1,3 +1,4 @@
+
 export type RandomFn = () => number
 
 export function createRandom(seed: number): RandomFn {

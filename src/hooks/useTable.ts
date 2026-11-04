@@ -1,3 +1,4 @@
+
 export interface UseTableOptions<T> {
   initialData?: T[];
   pageSize?: number;

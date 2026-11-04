@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from "vue";
 import { ChatDotRound, Promotion } from "@element-plus/icons-vue";
@@ -216,10 +217,6 @@ onMounted(() => {
       <div class="ai-avatar">
         <el-icon><ChatDotRound /></el-icon>
       </div>
-      <!-- <div class="chat-header__meta">
-        <strong>AI Agent 助手</strong>
-        <span>在线</span>
-      </div> -->
     </header>
 
     <section ref="listRef" class="chat-list" @scroll.passive="handleScroll">

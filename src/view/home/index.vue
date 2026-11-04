@@ -1,3 +1,4 @@
+
 <template>
   <div class="home-container">
     <div class="welcome-banner">

@@ -1,3 +1,4 @@
+
 const COUNTER_ENDPOINT = 'https://abacus.jasoncameron.dev';
 const COUNTER_NAMESPACE = 'libieke-my-vue-ts-pina-pc';
 const COUNTER_KEY = 'home-visits';

@@ -1,9 +1,9 @@
+
 <template>
   <ContentTitle>
     <div class="page-shell">
       <div class="page-header">
         <div>
-          <!-- <p class="eyebrow">知识库</p> -->
           <h2>{{ $t('menu.docCenter') }}</h2>
         </div>
         <el-button type="primary">{{ $t('doc.upload') }}</el-button>
@@ -32,7 +32,6 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-// 文档描述走 i18n（文档名作为数据保留）
 const docs = computed(() => [
   {
     name: "后台管理系统说明书.pdf",

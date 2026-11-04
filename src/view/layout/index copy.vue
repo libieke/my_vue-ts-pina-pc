@@ -1,5 +1,5 @@
+
 <template>
-  <!-- 布局2 -->
   <div class="common-layout">
     <el-container>
       <el-aside width="200px">

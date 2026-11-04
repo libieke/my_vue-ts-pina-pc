@@ -1,3 +1,4 @@
+
 <template>
   <ContentTitle>
     <div class="user-set-page">
@@ -79,7 +80,6 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-// 筛选字段使用 computed 包裹，切换语言时自动更新
 const searchFields = computed(() => [
   {
     prop: "nickName",
@@ -129,7 +129,6 @@ const tableData = reactive({
   data: [],
 });
 
-// 表头使用 computed 包裹，切换语言时自动更新
 const tableTitles = computed(() => [
   {
     title: t("user.user"),
@@ -154,7 +153,6 @@ const tableTitles = computed(() => [
 ]);
 
 const loadUserSetList = async () => {
-  // 这里先使用 mock 数据；后续接真实接口时直接替换为 request() 调用即可
   const res = await mockUserSettingApi();
   tableData.data = Array.isArray(res?.data) ? res.data : [];
 };
@@ -164,7 +162,6 @@ onMounted(() => {
 });
 
 const filteredTableData = computed(() => {
-  // 过滤列表时对 data 做安全兜底，避免空数据直接触发 filter 报错
   const sourceData = Array.isArray(tableData?.data) ? tableData.data : [];
   const filterData = sourceData.filter((row) => {
     const nickName = String(row?.nickName || "");
@@ -198,7 +195,6 @@ const filteredTableData = computed(() => {
 });
 
 const pagedTableData = computed(() => {
-  // 分页切片也必须防止 undefined，空数据时返回 []，避免白屏
   const sourceData = Array.isArray(filteredTableData.value?.data)
     ? filteredTableData.value.data
     : [];
@@ -294,7 +290,6 @@ const handleDel = (row) => {
       ElMessage.info(t("user.deleteCancelled"));
     });
 };
-// 表格内按钮
 const handleReset = (row) => {
   ElMessageBox.confirm(
     t("user.resetConfirmMsg", {
@@ -321,7 +316,6 @@ const handleReset = (row) => {
       ElMessage.info(t("user.resetCancelled"));
     });
 };
-// 选中项发生改变
 const handleSelectionChange = debounce((val) => {
   console.log("val---", val);
 }, 100);

@@ -3,14 +3,8 @@ interface dataType {
   message?: string,
 }
 
-// 登录接口返回的数据类型
 export interface loginResponseData {
   code: number,
   data: dataType
 }
 
-
-// export interface loginForm {
-//   userName: number,
-//   passWord: dataType
-// }

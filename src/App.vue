@@ -1,10 +1,10 @@
+
 ```vue
 <template>
   <el-config-provider :locale="elementLocale">
     <div id="app">
       <router-view />
 
-      <!-- 可拖动的智能助手悬浮按钮 -->
       <div
         class="chat-container"
         :style="chatPosition"
@@ -16,7 +16,6 @@
         <p>助手</p>
       </div>
 
-      <!-- 保留原有弹窗和聊天组件 -->
       <Dialog
         v-model="dialogVisible"
         :title="'AI Agent 助手'"
@@ -35,16 +34,12 @@ import { useI18n } from "vue-i18n";
 import zhCn from "element-plus/dist/locale/zh-cn.mjs";
 import en from "element-plus/dist/locale/en.mjs";
 
-// 根据你项目的实际路径引入 Dialog 和 Chat
-// import Dialog from '@/components/Dialog.vue'
-// import Chat from '@/components/Chat.vue'
 
 const dialogVisible = ref(false);
 const { locale } = useI18n();
 
 const elementLocale = computed(() => (locale.value === "zh-CN" ? zhCn : en));
 
-// 悬浮按钮初始位置：距离右侧、底部各 20px
 const position = ref({
   right: 20,
   bottom: 20,
@@ -62,7 +57,6 @@ let startY = 0;
 let initialRight = 0;
 let initialBottom = 0;
 
-// 鼠标按下
 function startDrag(event: MouseEvent) {
   if (event.button !== 0) return;
 
@@ -78,7 +72,6 @@ function startDrag(event: MouseEvent) {
   window.addEventListener("mouseup", stopDrag);
 }
 
-// 触摸屏按下
 function startTouchDrag(event: TouchEvent) {
   const touch = event.touches[0];
   if (!touch) return;
@@ -98,14 +91,12 @@ function startTouchDrag(event: TouchEvent) {
   window.addEventListener("touchcancel", stopDrag);
 }
 
-// 鼠标移动
 function onDrag(event: MouseEvent) {
   if (!dragging) return;
 
   updatePosition(event.clientX, event.clientY);
 }
 
-// 触摸移动
 function onTouchDrag(event: TouchEvent) {
   if (!dragging) return;
 
@@ -117,7 +108,6 @@ function onTouchDrag(event: TouchEvent) {
   updatePosition(touch.clientX, touch.clientY);
 }
 
-// 更新位置，限制在浏览器可视区域内
 function updatePosition(clientX: number, clientY: number) {
   const deltaX = clientX - startX;
   const deltaY = clientY - startY;
@@ -137,7 +127,6 @@ function updatePosition(clientX: number, clientY: number) {
   };
 }
 
-// 松开鼠标或手指
 function stopDrag() {
   dragging = false;
 
@@ -148,7 +137,6 @@ function stopDrag() {
   window.removeEventListener("touchcancel", stopDrag);
 }
 
-// 拖动后不触发点击，避免拖动时误打开弹窗
 function handleClick(event: MouseEvent) {
   if (moved) {
     event.stopPropagation();
@@ -174,7 +162,6 @@ onBeforeUnmount(() => {
   background-color: #fff;
 }
 
-/* 智能助手拖动按钮 */
 .chat-container {
   width: 58px;
   height: 58px;

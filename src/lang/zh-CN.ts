@@ -1,3 +1,4 @@
+
 export default {
   common: {
     search: "搜索",

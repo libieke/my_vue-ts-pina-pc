@@ -146,39 +146,30 @@
 }
 
 @for $i from 0 through 80 {
-  // 只要双数和能被5除尽的数
   @if $i % 2==0 or $i % 5==0 {
-    // 得出：margin-30或者u-m-30
     .margin-#{$i},
     .m-#{$i} {
       margin: $i + px !important;
     }
 
-    // 得出：padding-30或者p-30
     .padding-#{$i},
     .p-#{$i} {
       padding: $i + px !important;
     }
 
     @each $short, $long in l left, t top, r right, b bottom {
-      // 缩写版，结果如： m-l-30
-      // 定义外边距
       .m-#{$short}-#{$i} {
         margin-#{$long}: $i + px !important;
       }
 
-      // 定义内边距
       .p-#{$short}-#{$i} {
         padding-#{$long}: $i + px !important;
       }
 
-      // 完整版，结果如：margin-left-30
-      // 定义外边距
       .margin-#{$long}-#{$i} {
         margin-#{$long}: $i + px !important;
       }
 
-      // 定义内边距
       .padding-#{$long}-#{$i} {
         padding-#{$long}: $i + px !important;
       }

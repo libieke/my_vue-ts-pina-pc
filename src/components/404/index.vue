@@ -1,3 +1,4 @@
+
 <template>
   <Result status="404" title="404" :sub-title="$t('notFound.subTitle')">
     <template #extra>

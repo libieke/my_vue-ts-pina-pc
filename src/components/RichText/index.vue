@@ -1,3 +1,4 @@
+
 <template>
   <div class="rich-text-editor">
     <QuillEditor
