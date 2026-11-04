@@ -64,7 +64,6 @@
       </div>
     </div>
 
-
     <div class="section-card order-stream">
       <div class="section-header">
         <h3 class="section-title">
@@ -505,8 +504,7 @@ const rankList = ref([
   { nameKey: "home.rank5", value: "528" },
 ]);
 
-onMounted(() => {
-});
+onMounted(() => {});
 </script>
 
 <style lang="scss" scoped>
@@ -773,6 +771,7 @@ onMounted(() => {
       height: 420px;
       border: 1px solid #f2f3f5;
       border-radius: 8px;
+      padding: 0 8px;
     }
 
     .order-main {
