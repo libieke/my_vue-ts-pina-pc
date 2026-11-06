@@ -89,11 +89,10 @@ interface TrendPoint {
   value: number;
 }
 
-interface TooltipItemLike {
-  name?: string;
-  value?: string | number;
-  color?: string;
-}
+type TooltipRenderOptions = {
+  title?: string;
+  items?: Array<{ name?: string; value?: unknown; color?: string }>;
+};
 
 function formatAmount(value: unknown): string {
   const number = Number(value);
@@ -140,10 +139,7 @@ function getDayFundData(date: string) {
 
 function renderTooltipHtml(
   _event: unknown,
-  params: {
-    title?: string;
-    items?: TooltipItemLike[];
-  },
+  params: TooltipRenderOptions,
 ): string {
   const date = String(params?.title ?? "");
 
@@ -237,28 +233,38 @@ function renderChart() {
     return;
   }
 
-  if (chart) {
-    chart.destroy();
-    chart = null;
-  }
-
-  el.innerHTML = "";
-
   if (!trendData.value.length) {
+    chart?.destroy();
+    chart = null;
     return;
   }
 
-  chart = new Chart({
-    container: el,
-    autoFit: true,
-  });
+  if (!chart) {
+    chart = new Chart({
+      container: el,
+      autoFit: true,
+    });
+  }
+
+  const commonScale = {
+    x: { type: "time" as const },
+    color: {
+      domain: ["收入", "支出"],
+      range: [COLORS.income, COLORS.expense],
+    },
+  };
 
   chart.options({
     type: "view",
 
     data: trendData.value,
 
-    padding: [20, 20, 40, 48],
+    paddingLeft: 48,
+    paddingRight: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+
+    scale: commonScale,
 
     interaction: {
       tooltip: {
@@ -290,17 +296,6 @@ function renderChart() {
           color: "type",
         },
 
-        scale: {
-          x: {
-            type: "time",
-          },
-
-          color: {
-            domain: ["收入", "支出"],
-            range: [COLORS.income, COLORS.expense],
-          },
-        },
-
         style: {
           fillOpacity: 0.12,
           shape: "smooth",
@@ -323,17 +318,6 @@ function renderChart() {
         style: {
           lineWidth: 2.8,
           shape: "smooth",
-        },
-
-        scale: {
-          x: {
-            type: "time",
-          },
-
-          color: {
-            domain: ["收入", "支出"],
-            range: [COLORS.income, COLORS.expense],
-          },
         },
 
         tooltip: {
@@ -387,17 +371,10 @@ function renderChart() {
           x: "date",
           y: "value",
           color: "type",
-          size: 4,
-        },
-
-        scale: {
-          color: {
-            domain: ["收入", "支出"],
-            range: [COLORS.income, COLORS.expense],
-          },
         },
 
         style: {
+          size: 4,
           stroke: "#ffffff",
           lineWidth: 2,
         },
