@@ -31,7 +31,8 @@ export default {
     dataAnalysis: 'Data Analysis',
     messageNotice: 'Message Notice',
     docCenter: 'Doc Center',
-    fileManage: 'File Management'
+    fileManage: 'File Management',
+    chartsFile: 'Charts'
   },
   header: {
     platform: 'My Admin Platform',

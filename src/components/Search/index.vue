@@ -89,12 +89,17 @@
 
       <el-form-item class="search-form-actions" label="">
         <el-button type="primary" :icon="Search" @click="handleSearch">
-          {{ searchText || $t('common.query') }}
+          {{ searchText || $t("common.query") }}
         </el-button>
         <el-button v-if="showReset" :icon="RefreshLeft" @click="handleReset">
-          {{ resetText || $t('common.reset') }}
+          {{ resetText || $t("common.reset") }}
         </el-button>
-        <slot name="actions" :model="formModel" :search="handleSearch" :reset="handleReset" />
+        <slot
+          name="actions"
+          :model="formModel"
+          :search="handleSearch"
+          :reset="handleReset"
+        />
       </el-form-item>
     </el-form>
   </div>
@@ -219,15 +224,20 @@ watch(
   () => {
     syncModel();
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 
-const getControlProps = (field: SearchField, placeholderType?: "input" | "select") => {
+const getControlProps = (
+  field: SearchField,
+  placeholderType?: "input" | "select",
+) => {
   const label = field.label || field.prop;
   const defaultPlaceholder = placeholderType
     ? t(
-        placeholderType === "input" ? "common.pleaseInput" : "common.pleaseSelect",
-        { label }
+        placeholderType === "input"
+          ? "common.pleaseInput"
+          : "common.pleaseSelect",
+        { label },
       )
     : undefined;
   const placeholder = field.placeholder || defaultPlaceholder;

@@ -1,4 +1,3 @@
-
 export default {
   common: {
     search: "搜索",
@@ -32,6 +31,7 @@ export default {
     messageNotice: "消息通知",
     docCenter: "文档中心",
     fileManage: "文件管理",
+    chartsFile: "图表示例",
   },
   header: {
     platform: "我的管理平台",

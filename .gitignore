@@ -35,3 +35,6 @@ components.d.ts
 
 # Jest coverage
 coverage/
+
+# 构建期临时目录（scripts/build.mjs 使用）
+.tmp/

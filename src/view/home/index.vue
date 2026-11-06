@@ -103,8 +103,27 @@
         :items="orderList"
         :columns="orderColumns"
         :item-size="64"
+        :overscan="5"
         :debug="isDev"
         key-field="id"
+        :searchable="true"
+        :search-fields="[
+          'orderNo',
+          'product',
+          'channel',
+          'amount',
+          'status',
+          'createdAt',
+        ]"
+        :search-formatter="orderSearchFormatter"
+        search-placeholder="搜索订单号、商品、金额、状态..."
+        v-model:auto-scroll="orderAutoScroll"
+        v-model:auto-scroll-speed="orderScrollSpeed"
+        :auto-scroll-loop="true"
+        :show-auto-scroll-toggle="true"
+        :show-speed-control="true"
+        @search-change="handleOrderSearch"
+        @auto-scroll-change="handleAutoScrollChange"
         class="order-list"
       >
         <template #cell-order="{ item }">
@@ -302,6 +321,30 @@ const orderColumns = [
   { key: "status", label: "状态", flex: 1.1 },
   { key: "createdAt", label: "下单时间", flex: 1.6, align: "left" },
 ];
+
+const orderAutoScroll = ref(true);
+
+const orderScrollSpeed = ref(30);
+
+function orderSearchFormatter(item: Record<string, any>, field: string) {
+  if (field === "status") {
+    return `${item.status ?? ""} ${statusMeta(item.status).label}`;
+  }
+
+  if (field === "amount") {
+    return `¥${item.amount ?? ""} ${item.amount ?? ""}`;
+  }
+
+  return item[field];
+}
+
+function handleOrderSearch(keyword: string) {
+  console.log("订单搜索：", keyword);
+}
+
+function handleAutoScrollChange(enabled: boolean) {
+  console.log("订单自动滚动：", enabled ? "开启" : "暂停");
+}
 
 const richTextContent = ref(
   "<p>欢迎使用 <strong>通用富文本组件</strong>，支持 <em>加粗</em>、<u>下划线</u>、列表和链接等基础编辑能力。</p>",
@@ -756,53 +799,55 @@ onMounted(() => {});
   }
 
   .order-stream {
-    .order-toolbar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 600px;
+    overflow: hidden;
+  }
 
-    .order-total {
-      font-size: 12px;
-      color: #86909c;
-    }
+  .order-stream .section-header {
+    flex: none;
+  }
 
-    .order-list {
-      height: 420px;
-      border: 1px solid #f2f3f5;
-      border-radius: 8px;
-      padding: 0 8px;
-    }
+  .order-stream .virtual-list-root {
+    flex: 1;
+    min-height: 0;
+  }
 
-    .order-main {
-      display: flex;
-      flex: 1;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
+  .order-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+  }
 
-    .order-no {
-      font-weight: 600;
-      font-variant-numeric: tabular-nums;
-    }
+  .order-no {
+    overflow: hidden;
+    color: #303133;
+    font-size: 13px;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-    .order-product {
-      overflow: hidden;
-      font-size: 12px;
-      color: #86909c;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+  .order-product {
+    overflow: hidden;
+    color: #909399;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-    .order-amount {
-      font-variant-numeric: tabular-nums;
-    }
+  .order-amount {
+    color: #f56c6c;
+    font-weight: 600;
+  }
 
-    .order-time {
-      font-size: 12px;
-      color: #86909c;
-    }
+  .order-time {
+    color: #909399;
+    font-size: 12px;
   }
 
   .chart-row {
