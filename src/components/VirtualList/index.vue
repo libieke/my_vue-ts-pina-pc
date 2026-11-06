@@ -236,7 +236,7 @@ const searchKeyword = ref("");
 const isHovering = ref(false);
 
 const speedOptions = [
-  { label: "慢速", value: 10 },
+  { label: "慢速", value: 15 },
   { label: "较慢", value: 20 },
   { label: "标准", value: 30 },
   { label: "快速", value: 50 },
