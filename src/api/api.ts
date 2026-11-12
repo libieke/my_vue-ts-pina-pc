@@ -88,6 +88,7 @@ const mockLogin = async (credentials: ReqLogin): Promise<ItypeAPI<any>> => {
     msg: "登录成功",
     data: {
       token: userInfo.token,
+      refreshToken: `${userInfo.token}-refresh`,
       username: userInfo.user.username,
     },
   };

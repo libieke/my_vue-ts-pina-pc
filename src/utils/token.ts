@@ -6,6 +6,18 @@ export const GET_TOKEN = () => {
   return localStorage.getItem('TOKEN')
 }
 
+export const SET_REFRESH_TOKEN = (refreshToken: string) => {
+  localStorage.setItem('REFRESH_TOKEN', refreshToken)
+}
+
+export const GET_REFRESH_TOKEN = () => {
+  return localStorage.getItem('REFRESH_TOKEN')
+}
+
+export const REMOVE_REFRESH_TOKEN = () => {
+  localStorage.removeItem('REFRESH_TOKEN')
+}
+
 export const SET_USER_INFO = (userInfo: { username?: string; avatar?: string }) => {
   localStorage.setItem('USER_INFO', JSON.stringify(userInfo))
 }

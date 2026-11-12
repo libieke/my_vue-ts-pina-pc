@@ -1,4 +1,17 @@
-import { GET_TOKEN, GET_USER_INFO, GET_USER_ROLE, REMOVE_TOKEN, REMOVE_USER_INFO, REMOVE_USER_ROLE, SET_TOKEN, SET_USER_INFO, SET_USER_ROLE } from "../token";
+import {
+  GET_REFRESH_TOKEN,
+  GET_TOKEN,
+  GET_USER_INFO,
+  GET_USER_ROLE,
+  REMOVE_REFRESH_TOKEN,
+  REMOVE_TOKEN,
+  REMOVE_USER_INFO,
+  REMOVE_USER_ROLE,
+  SET_REFRESH_TOKEN,
+  SET_TOKEN,
+  SET_USER_INFO,
+  SET_USER_ROLE
+} from "../token";
 describe("token 工具", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -31,6 +44,13 @@ describe("token 工具", () => {
       username: "",
       avatar: ""
     });
+  });
+  it("刷新令牌支持读写与删除", () => {
+    expect(GET_REFRESH_TOKEN()).toBeNull();
+    SET_REFRESH_TOKEN("refresh-token");
+    expect(GET_REFRESH_TOKEN()).toBe("refresh-token");
+    REMOVE_REFRESH_TOKEN();
+    expect(GET_REFRESH_TOKEN()).toBeNull();
   });
   it("角色默认 user，并支持读写与删除", () => {
     expect(GET_USER_ROLE()).toBe("user");

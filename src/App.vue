@@ -6,6 +6,7 @@
       <router-view />
 
       <div
+        v-if="token"
         class="chat-container"
         :style="chatPosition"
         @mousedown="startDrag"
@@ -29,10 +30,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from "vue";
+import useHomeStore from "@/store/home";
 import { useI18n } from "vue-i18n";
 import zhCn from "element-plus/dist/locale/zh-cn.mjs";
 import en from "element-plus/dist/locale/en.mjs";
+
+const authStore = useHomeStore();
+const token = authStore.token;
 
 
 const dialogVisible = ref(false);
