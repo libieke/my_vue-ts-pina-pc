@@ -136,6 +136,32 @@
   </div>
 </template>
 
+/**
+ * @file VirtualList/index.vue
+ * @description 支持虚拟滚动 + 自动循环播放 + 动态测高 + 表格布局的万能列表组件
+ *
+ * ===== 核心原理 =====
+ * 虚拟滚动的本质是「只渲染可视区域内的 DOM」，用一个等高的占位元素（phantom）
+ * 撑出完整滚动高度，再把实际渲染内容通过 transform: translateY 移动到正确位置。
+ * 这样无论数据量是 100 条还是 100 万条，DOM 节点数始终保持在 O(可视数) 级别。
+ *
+ * ===== 双模式 =====
+ *  - 固定高度 (itemSize 有值)：O(1) 计算范围，性能最优，适合等高行
+ *  - 动态高度 (itemSize = null)：先给每行一个 estimatedItemSize 预估高度，
+ *      然后用 ResizeObserver 实时测量真实高度，存入 measuredHeights Map，
+ *      再构建 prefixSums 前缀和数组，用二分查找定位 scrollTop 对应的起始行。
+ *
+ * ===== 无缝循环 =====
+ * 固定高度 + autoScrollLoop 时，把数据复制 3 份拼起来，滚动到第三份时
+ * normalizeScrollPosition 把 scrollTop 减去一份高度跳回第二份，
+ * 因为视觉内容完全相同，用户感知不到跳转，从而实现无限循环滚动。
+ *
+ * ===== 自动滚动 =====
+ * 用 requestAnimationFrame 驱动，帧间隔 clamp 到 50ms 防止切标签页后跳跃。
+ * 速度参数是「每秒移动多少像素」，不足 1px 的小数存在 scrollRemainder 里
+ * 累积到整数再移动，保证低速度下也能平滑前进。
+ */
+
 <script setup lang="ts">
 import {
   computed,
@@ -608,6 +634,7 @@ watch(
     startAutoScroll();
   },
 );
+
 
 
 const itemRefs = new Map<number, HTMLElement>();
