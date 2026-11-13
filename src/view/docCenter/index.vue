@@ -4,9 +4,11 @@
     <div class="page-shell">
       <div class="page-header">
         <div>
-          <h2>{{ $t('menu.docCenter') }}</h2>
+          <h2>{{ $t("menu.docCenter") }}</h2>
         </div>
-        <el-button type="primary">{{ $t('doc.upload') }}</el-button>
+        <el-button type="primary" @click="openDialog">
+          {{ $t("doc.upload") }}
+        </el-button>
       </div>
 
       <div class="doc-grid">
@@ -23,13 +25,46 @@
         </div>
       </div>
     </div>
+    <Dialog
+      v-model="dialogVisible"
+      :title="'上传文档'"
+      :width="'800px'"
+      @confirm="handleDialogConfirm"
+      @cancel="handleDialogCancel"
+    >
+      <BigFileUploader
+        :upload-url="MOCK_UPLOAD_URLS.upload"
+        :check-url="MOCK_UPLOAD_URLS.check"
+        :merge-url="MOCK_UPLOAD_URLS.merge"
+        :remove-url="MOCK_UPLOAD_URLS.remove"
+        :request="mockUploadRequest"
+        :chunk-size="2 * 1024 * 1024"
+        :concurrency="3"
+      />
+    </Dialog>
   </ContentTitle>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useDialog } from "@/hooks";
+import useHomeStore from "@/store/home";
+import { mockUploadRequest, MOCK_UPLOAD_URLS } from "@/mock/uploadRequest";
+const authStore = useHomeStore();
+const token = authStore.token;
 
+const {
+  visible: dialogVisible,
+  open: openDialog,
+  close: closeDialog,
+} = useDialog(false);
+const handleDialogConfirm = () => {
+  closeDialog();
+};
+
+const handleDialogCancel = () => {
+  closeDialog();
+};
 const { t } = useI18n();
 
 const docs = computed(() => [

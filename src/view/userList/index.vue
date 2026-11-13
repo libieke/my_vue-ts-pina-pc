@@ -20,12 +20,18 @@
           @selection-change="handleSelectionChange"
         >
           <template v-slot:actionColumn>
-            <el-table-column :label="$t('common.operation')" align="center" width="200">
+            <el-table-column
+              :label="$t('common.operation')"
+              align="center"
+              width="200"
+            >
               <template v-slot="{ row }">
-                <span class="pointer" @click="handleEdit(row)">{{ $t('user.edit') }}</span>
-                <span class="pointer red mr10" @click="handleDel(row)"
-                  >{{ $t('user.delete') }}</span
-                >
+                <span class="pointer" @click="handleEdit(row)">{{
+                  $t("user.edit")
+                }}</span>
+                <span class="pointer red mr10" @click="handleDel(row)">{{
+                  $t("user.delete")
+                }}</span>
               </template>
             </el-table-column>
           </template>
@@ -71,9 +77,6 @@
 <script setup>
 import { watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import Search from "../../components/Search/index.vue";
-import Pagination from "../../components/Pagination/index.vue";
-import Dialog from "../../components/Dialog/index.vue";
 import { useDialog, useApprovalStatus, useTable } from "@/hooks";
 import { mockUserListApi } from "@/mock/userData";
 import { debounce } from "lodash";
@@ -122,7 +125,11 @@ const {
   pageSize: 10,
 });
 
-const { visible: dialogVisible, open: openDialog, close: closeDialog } = useDialog(false);
+const {
+  visible: dialogVisible,
+  open: openDialog,
+  close: closeDialog,
+} = useDialog(false);
 const { getStatusLabel } = useApprovalStatus();
 const approvalStatusLabel = computed(() => getStatusLabel(1));
 const editForm = ref({
@@ -260,7 +267,9 @@ const handleDel = (row) => {
     },
   )
     .then(() => {
-      const index = tableData.data.findIndex((item) => item.username === row.username);
+      const index = tableData.data.findIndex(
+        (item) => item.username === row.username,
+      );
       if (index !== -1) {
         tableData.data.splice(index, 1);
       }
@@ -283,7 +292,9 @@ const handleReset = (row) => {
     },
   )
     .then(() => {
-      const index = tableData.data.findIndex((item) => item.username === row.username);
+      const index = tableData.data.findIndex(
+        (item) => item.username === row.username,
+      );
       if (index !== -1) {
         tableData.data[index] = {
           ...tableData.data[index],

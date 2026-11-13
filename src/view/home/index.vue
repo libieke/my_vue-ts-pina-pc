@@ -290,6 +290,7 @@ import {
   Folder,
   Tickets,
   Refresh,
+  DataLine,
 } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
@@ -454,6 +455,12 @@ const quickActions = computed(() => [
     icon: markRaw(Setting),
     bgColor: "#7052F8",
     path: "/userSet",
+  },
+  {
+    label: t("menu.chartsFile"),
+    icon: markRaw(DataLine),
+    bgColor: "linear-gradient(135deg, #17c3ce, #4ad9e0)",
+    path: "/chartsFile",
   },
   {
     label: t("home.moreFeatures"),
@@ -724,7 +731,7 @@ onMounted(() => {});
 
   .quick-actions {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(9, 1fr);
     gap: 16px;
 
     .quick-item {
